@@ -187,4 +187,5 @@ div#content {
         min-height: 675px;
         width: 100%;
         border:none;
+        background: transparent;
     }
