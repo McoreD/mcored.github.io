@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana (SOL) 2025 Market Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Warm Neutrals with Teal/Gold Accents) -->
+    <!-- Application Structure Plan: A thematic, non-linear dashboard structure is used to enhance user exploration. The flow starts with the main forecast (the key takeaway), then dives into the supporting pillars (Thesis, Sentiment, Technicals), presents comparative data, and concludes with risks. This structure allows users to digest information in logical, self-contained modules rather than a long, linear document, improving usability and engagement. Key interactions include toggling price cases, hovering over charts for details, and using accordions for dense text, all designed to make complex information more accessible. -->
+    <!-- Visualization & Content Choices: Report Info -> Goal -> Viz/Presentation -> Interaction -> Justification. 1. Price Forecast -> Inform -> Interactive Text Toggle -> Click -> Immediately presents the core conclusion. 2. On-Chain Metrics -> Compare -> Bar/Donut Charts (Chart.js) -> Hover -> Best for comparing magnitudes and parts-of-a-whole. 3. Sentiment Scores -> Inform -> HTML/CSS Gauges -> Static visual -> Intuitive representation of a score. 4. Analyst Predictions -> Organize -> Bar Chart (Chart.js) -> Hover -> Easy comparison of multiple data points. 5. Risks -> Organize -> HTML/JS Accordion -> Click -> Condenses text to prevent user overload. This approach uses the best tool for each data type to maximize clarity and engagement. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF7; /* Warm Neutral Background */
+            color: #3D4852;
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #1F7A8C; /* Teal Accent */
+            border-bottom-color: #1F7A8C;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .accordion-button.open + .accordion-content {
+            max-height: 500px;
+        }
+        .btn-toggle {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .btn-toggle.active {
+            background-color: #1F7A8C;
+            color: white;
+        }
+        .btn-toggle:not(.active) {
+            background-color: #E0E7FF;
+            color: #4338CA;
+        }
+        .gauge-container {
+            position: relative;
+            width: 150px;
+            height: 75px;
+            overflow: hidden;
+        }
+        .gauge-background, .gauge-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 20px solid;
+            box-sizing: border-box;
+        }
+        .gauge-background {
+            border-color: #E5E7EB;
+        }
+        .gauge-fill {
+            clip: rect(0, 150px, 75px, 0);
+            border-color: #1F7A8C;
+            transition: transform 1s ease-in-out;
+        }
+        .gauge-text {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-[#1F7A8C]">SOL</span>
+                    <span class="text-2xl font-bold text-gray-700">Analysis 2025</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#forecast" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600">Forecast</a>
+                        <a href="#thesis" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600">Thesis</a>
+                        <a href="#sentiment" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600">Sentiment</a>
+                        <a href="#technicals" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600">Technicals</a>
+                        <a href="#comparison" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600">Comparison</a>
+                        <a href="#risks" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600">Risks</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <!-- Section: Forecast -->
+        <section id="forecast" class="text-center mb-16 md:mb-24 scroll-mt-20">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-2">2025 Cycle Top Forecast</h1>
+            <p class="text-lg text-gray-500 max-w-3xl mx-auto mb-8">Synthesizing fundamental, technical, and sentiment analysis, this report forecasts a significant price appreciation for Solana in 2025, contingent on key catalysts.</p>
+            <div class="flex justify-center space-x-2 mb-8">
+                <button id="baseCaseBtn" class="btn-toggle active px-6 py-2 font-semibold rounded-full text-lg">Base Case</button>
+                <button id="bullCaseBtn" class="btn-toggle px-6 py-2 font-semibold rounded-full text-lg">Bull Case</button>
+            </div>
+            <div class="card max-w-2xl mx-auto p-8">
+                <p id="caseTitle" class="text-2xl font-bold text-[#1F7A8C] mb-2">Base Case Forecast</p>
+                <div id="priceTarget" class="text-6xl md:text-7xl font-extrabold text-gray-800 tracking-tight">$450 - $650</div>
+                <p id="caseDescription" class="mt-4 text-gray-600">The most probable outcome, assuming successful network upgrades and a spot ETF approval with measured capital inflows.</p>
+            </div>
+        </section>
+
+        <!-- Section: The Core Thesis -->
+        <section id="thesis" class="mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">The Bullish Thesis: Three Core Pillars</h2>
+            <p class="text-lg text-center text-gray-500 max-w-3xl mx-auto mb-12">Solana's potential is driven by a confluence of technological maturation, robust economic activity, and imminent institutional validation.</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Pillar 1: Tech -->
+                <div class="card p-6 flex flex-col">
+                    <div class="mb-4">
+                        <span class="inline-block bg-teal-100 text-[#1F7A8C] text-xs font-semibold px-3 py-1 rounded-full">Pillar 1</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Technological Maturation</h3>
+                    <p class="text-gray-600 mb-4 flex-grow">Upcoming upgrades like Firedancer and Alpenglow are set to fundamentally de-risk the network, delivering unprecedented scale and reliability.</p>
+                    <button onclick="showModal('techModal')" class="mt-auto w-full bg-[#1F7A8C] text-white font-semibold py-2 px-4 rounded-lg hover:bg-[#165a68] transition-colors">Learn More</button>
+                </div>
+                <!-- Pillar 2: Economy -->
+                <div class="card p-6 flex flex-col">
+                     <div class="mb-4">
+                        <span class="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full">Pillar 2</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Economic Momentum</h3>
+                    <p class="text-gray-600 mb-4 flex-grow">Solana's on-chain economy is thriving, dominating DEX volume, attracting developers, and generating significant economic value.</p>
+                    <button onclick="showModal('economyModal')" class="mt-auto w-full bg-[#1F7A8C] text-white font-semibold py-2 px-4 rounded-lg hover:bg-[#165a68] transition-colors">Explore Data</button>
+                </div>
+                <!-- Pillar 3: Institutional -->
+                <div class="card p-6 flex flex-col">
+                     <div class="mb-4">
+                        <span class="inline-block bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full">Pillar 3</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Institutional Validation</h3>
+                    <p class="text-gray-600 mb-4 flex-grow">The high probability of a spot ETF approval is poised to unlock significant institutional capital, legitimizing SOL as a blue-chip asset.</p>
+                    <button onclick="showModal('institutionalModal')" class="mt-auto w-full bg-[#1F7A8C] text-white font-semibold py-2 px-4 rounded-lg hover:bg-[#165a68] transition-colors">View Catalyst</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Sentiment -->
+        <section id="sentiment" class="mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">Market Sentiment Dashboard</h2>
+            <p class="text-lg text-center text-gray-500 max-w-3xl mx-auto mb-12">Quantitative and qualitative data reveals a strongly bullish consensus and a clear correlation between social hype and price action.</p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                <div class="card p-6 text-center">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-4">Social Sentiment Score</h4>
+                    <div class="gauge-container mx-auto">
+                        <div class="gauge-background"></div>
+                        <div id="sentimentGaugeFill" class="gauge-fill" style="transform: rotate(0deg);"></div>
+                        <div class="gauge-text">
+                            <span class="text-3xl font-bold text-gray-800">84</span>
+                            <span class="text-gray-500">/100</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-6 text-center">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-4">Fear & Greed Index</h4>
+                     <div class="gauge-container mx-auto">
+                        <div class="gauge-background"></div>
+                        <div id="greedGaugeFill" class="gauge-fill" style="transform: rotate(0deg);"></div>
+                        <div class="gauge-text">
+                            <span class="text-3xl font-bold text-gray-800">70</span>
+                             <span class="text-gray-500">/100</span>
+                        </div>
+                    </div>
+                    <p class="text-lg font-bold text-green-600 mt-2">Greed</p>
+                </div>
+                 <div class="card p-6 text-center flex flex-col justify-center">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-2">ETF Approval Probability</h4>
+                    <p class="text-5xl font-extrabold text-[#1F7A8C]">90%+</p>
+                    <p class="text-sm text-gray-500">(Source: Polymarket)</p>
+                </div>
+                 <div class="card p-6 text-center flex flex-col justify-center">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-2">Developer Growth (2024)</h4>
+                    <p class="text-5xl font-extrabold text-[#1F7A8C]">83%</p>
+                    <p class="text-sm text-gray-500">(Displaced Ethereum)</p>
+                </div>
+            </div>
+            <div class="card p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Price vs. Social Dominance</h3>
+                <p class="text-gray-600 mb-4">Spikes in social media discussion (Social Dominance) have historically coincided with major price rallies, indicating a reflexive relationship. However, extreme spikes can also signal short-term "FOMO tops."</p>
+                <div class="chart-container h-64 md:h-96">
+                    <canvas id="socialDominanceChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Technicals -->
+        <section id="technicals" class="mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">Technical Price Analysis</h2>
+            <p class="text-lg text-center text-gray-500 max-w-3xl mx-auto mb-12">A dominant, multi-year bullish pattern provides a long-term roadmap, while a range of analyst predictions helps frame potential 2025 targets.</p>
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">The "Cup-and-Handle" Formation</h3>
+                    <p class="text-gray-600 mb-4">The most powerful technical pattern on the SOL chart is a multi-year "cup-and-handle." A breakout above the <span class="font-bold text-[#D97706]">$250 neckline</span> would confirm the pattern and signal a major potential move higher.</p>
+                    <div class="bg-gray-50 rounded-lg p-4 h-64 flex items-center justify-center">
+                        <div class="w-full">
+                           <div class="relative h-40">
+                                <div class="absolute bottom-0 left-0 w-full h-32 border-2 border-dashed border-[#1F7A8C] rounded-b-full"></div>
+                                <div class="absolute bottom-10 right-0 w-24 h-16 border-2 border-dashed border-[#1F7A8C] rounded-b-full"></div>
+                                <div class="absolute top-0 left-0 w-full border-t-2 border-dashed border-[#D97706]"></div>
+                                <span class="absolute -top-3 left-2 bg-gray-50 px-1 text-sm font-semibold text-[#D97706]">$250 Neckline</span>
+                                <span class="absolute bottom-16 left-1/4 -translate-x-1/2 text-lg font-semibold text-[#1F7A8C]">Cup</span>
+                                <span class="absolute bottom-12 right-6 text-lg font-semibold text-[#1F7A8C]">Handle</span>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Analyst Price Predictions (2025)</h3>
+                    <p class="text-gray-600 mb-4">Expert forecasts vary, but a strong consensus aligns with the Base Case, while more bullish predictions support the Bull Case scenario.</p>
+                    <div class="chart-container h-64 md:h-96">
+                        <canvas id="analystPredictionsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Comparison -->
+        <section id="comparison" class="mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">Competitive Landscape: Solana vs. Ethereum</h2>
+            <p class="text-lg text-center text-gray-500 max-w-3xl mx-auto mb-12">Solana's monolithic architecture prioritizes performance and low fees, creating a clear trade-off against Ethereum's modular, security-focused approach.</p>
+            <div class="card overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="p-4 font-semibold">Metric</th>
+                            <th class="p-4 font-semibold text-[#1F7A8C]">Solana</th>
+                            <th class="p-4 font-semibold text-indigo-600">Ethereum (L1)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y">
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4 font-medium">Real-World TPS</td>
+                            <td class="p-4 font-bold text-[#1F7A8C]">~1,700 - 3,000+</td>
+                            <td class="p-4">~15 - 30</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4 font-medium">Average Transaction Fee</td>
+                            <td class="p-4 font-bold text-[#1F7A8C]">&lt;$0.01</td>
+                            <td class="p-4">$2 - $20+</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4 font-medium">Time-to-Finality</td>
+                            <td class="p-4 font-bold text-[#1F7A8C]">~2.5s (Pre-Alpenglow)</td>
+                            <td class="p-4">~12 - 15 minutes</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4 font-medium">Total Value Locked (TVL)</td>
+                            <td class="p-4">$8 - $10 billion</td>
+                            <td class="p-4 font-bold text-indigo-600">$50 - $60 billion+</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4 font-medium">Daily Active Users</td>
+                            <td class="p-4 font-bold text-[#1F7A8C]">~3.15 million+</td>
+                            <td class="p-4">~410,000+</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section: Risks -->
+        <section id="risks" class="scroll-mt-20">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">Key Risks & Headwinds</h2>
+            <p class="text-lg text-center text-gray-500 max-w-3xl mx-auto mb-12">A balanced perspective requires acknowledging potential challenges that could invalidate the bullish thesis.</p>
+            <div class="space-y-4 max-w-4xl mx-auto">
+                <!-- Risk 1 -->
+                <div class="card">
+                    <button class="accordion-button w-full text-left p-4 flex justify-between items-center">
+                        <span class="text-lg font-semibold text-gray-800">Execution Risk</span>
+                        <span class="transform transition-transform duration-300 text-[#1F7A8C] text-2xl">&plus;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p class="text-gray-600">The Firedancer and Alpenglow upgrades are complex. Any significant bugs, delays, or new stability issues could damage investor confidence and undermine the core thesis of a de-risked network.</p>
+                    </div>
+                </div>
+                <!-- Risk 2 -->
+                <div class="card">
+                    <button class="accordion-button w-full text-left p-4 flex justify-between items-center">
+                        <span class="text-lg font-semibold text-gray-800">Sentiment & Narrative Risk</span>
+                        <span class="transform transition-transform duration-300 text-[#1F7A8C] text-2xl">&plus;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p class="text-gray-600">A large portion of recent on-chain activity is driven by the speculative memecoin narrative. A cooling of this trend could lead to a sharp decline in active users and transaction volume, making on-chain metrics appear less healthy.</p>
+                    </div>
+                </div>
+                <!-- Risk 3 -->
+                <div class="card">
+                    <button class="accordion-button w-full text-left p-4 flex justify-between items-center">
+                        <span class="text-lg font-semibold text-gray-800">Technical & Market Risk</span>
+                        <span class="transform transition-transform duration-300 text-[#1F7A8C] text-2xl">&plus;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p class="text-gray-600">The cup-and-handle pattern is not infallible and could fail to break out. Furthermore, Solana is not immune to broader market forces; a macroeconomic downturn would likely impact all crypto assets.</p>
+                    </div>
+                </div>
+                 <!-- Risk 4 -->
+                <div class="card">
+                    <button class="accordion-button w-full text-left p-4 flex justify-between items-center">
+                        <span class="text-lg font-semibold text-gray-800">Regulatory Headwinds</span>
+                        <span class="transform transition-transform duration-300 text-[#1F7A8C] text-2xl">&plus;</span>
+                    </button>
+                    <div class="accordion-content px-4 pb-4">
+                        <p class="text-gray-600">While a spot ETF approval is widely expected, a surprise rejection by the SEC would be a major bearish catalyst. New, restrictive regulations targeting DeFi could also create significant selling pressure.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Modals -->
+    <!-- Tech Modal -->
+    <div id="techModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="card max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('techModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">The Engine Upgrade</h3>
+            <div class="space-y-4 text-gray-600">
+                <p><strong>Firedancer:</strong> Developed by Jump Crypto, this is an independent validator client designed to dramatically increase throughput (over 1M TPS in testing) and bolster network resilience by introducing client diversity. Its mainnet launch is a landmark event to de-risk the network from a single point of failure.</p>
+                <p><strong>Alpenglow:</strong> This new consensus protocol is designed to slash transaction finality to as low as 150 milliseconds. By achieving sub-second finality, Alpenglow positions Solana to compete directly with centralized Web2 infrastructure, unlocking new use cases in high-frequency trading and real-time payments.</p>
+                <p class="font-semibold text-gray-700">Together, these upgrades address historical stability concerns, neutralizing the primary barrier that has held back institutional investment.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Economy Modal -->
+    <div id="economyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="card max-w-4xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('economyModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">On-Chain Economic Activity</h3>
+            <p class="text-gray-600 mb-6">Analysis of key metrics reveals a network generating substantial economic value, solidifying its position as a leader in the space.</p>
+            <div class="chart-container h-80">
+                <canvas id="onChainMetricsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Institutional Modal -->
+    <div id="institutionalModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="card max-w-2xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('institutionalModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">The Institutional Floodgate</h3>
+            <div class="space-y-4 text-gray-600">
+                <p><strong>The Spot ETF Catalyst:</strong> A spot Solana ETF is the single most significant catalyst, providing a regulated and accessible investment vehicle for institutional and retail capital. Multiple asset managers have filed, with decision deadlines as early as October 16, 2025.</p>
+                <p>An approval would serve as the ultimate institutional seal of approval, signifying that regulators no longer view SOL as a speculative "altcoin" but as a commodity-like asset. This would trigger a powerful narrative shift, compelling conservative capital to acknowledge Solana as a core, blue-chip holding.</p>
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <p class="font-bold text-lg text-gray-700">"One of the first institutionally focused chains."</p>
+                    <p class="text-right text-gray-500">- CEO of Franklin Templeton</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Data
+            const forecastData = {
+                base: {
+                    title: 'Base Case Forecast',
+                    target: '$450 - $650',
+                    description: 'The most probable outcome, assuming successful network upgrades and a spot ETF approval with measured capital inflows.'
+                },
+                bull: {
+                    title: 'Bull Case Forecast',
+                    target: '$900 - $1,250',
+                    description: 'An optimistic scenario where all major catalysts converge, leading to strong and immediate capital inflows from a spot ETF.'
+                }
+            };
+
+            const analystPredictions = [
+                { name: 'Michael van de Poppe', target: 300 },
+                { name: 'Miles Deutscher', target: 450 },
+                { name: 'CryptoZachLA', target: 450 },
+                { name: 'Ben Armstrong', target: 500 },
+                { name: 'Pantera Capital', target: 1000 },
+            ];
+
+            // Elements
+            const baseCaseBtn = document.getElementById('baseCaseBtn');
+            const bullCaseBtn = document.getElementById('bullCaseBtn');
+            const caseTitle = document.getElementById('caseTitle');
+            const priceTarget = document.getElementById('priceTarget');
+            const caseDescription = document.getElementById('caseDescription');
+            
+            // Forecast Toggle Logic
+            function setForecast(caseType) {
+                const data = forecastData[caseType];
+                caseTitle.textContent = data.title;
+                priceTarget.textContent = data.target;
+                caseDescription.textContent = data.description;
+
+                if (caseType === 'base') {
+                    baseCaseBtn.classList.add('active');
+                    bullCaseBtn.classList.remove('active');
+                } else {
+                    bullCaseBtn.classList.add('active');
+                    baseCaseBtn.classList.remove('active');
+                }
+            }
+
+            baseCaseBtn.addEventListener('click', () => setForecast('base'));
+            bullCaseBtn.addEventListener('click', () => setForecast('bull'));
+
+            // Accordion Logic
+            document.querySelectorAll('.accordion-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const wasOpen = button.classList.contains('open');
+                    document.querySelectorAll('.accordion-button').forEach(b => b.classList.remove('open'));
+                    document.querySelectorAll('.accordion-button .transform').forEach(icon => icon.style.transform = 'rotate(0deg)');
+                    
+                    if (!wasOpen) {
+                        button.classList.toggle('open');
+                        const icon = button.querySelector('.transform');
+                        icon.style.transform = button.classList.contains('open') ? 'rotate(45deg)' : 'rotate(0deg)';
+                    }
+                });
+            });
+            
+            // Navigation scroll logic
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Active nav link on scroll
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('header nav a');
+            window.onscroll = () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            };
+            
+            // Modal Logic
+            window.showModal = (modalId) => {
+                document.getElementById(modalId).classList.remove('hidden');
+                document.getElementById(modalId).classList.add('flex');
+                document.body.style.overflow = 'hidden';
+            };
+
+            window.closeModal = (modalId) => {
+                document.getElementById(modalId).classList.add('hidden');
+                document.getElementById(modalId).classList.remove('flex');
+                document.body.style.overflow = 'auto';
+            };
+
+            // Gauge animation
+            function animateGauge(gaugeFillId, percentage) {
+                const gaugeFill = document.getElementById(gaugeFillId);
+                const rotation = (percentage / 100) * 180;
+                setTimeout(() => {
+                    gaugeFill.style.transform = `rotate(${rotation}deg)`;
+                }, 300);
+            }
+            animateGauge('sentimentGaugeFill', 84);
+            animateGauge('greedGaugeFill', 70);
+
+            // Chart.js Initializations
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#4B5563'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: '#6B7280' },
+                        grid: { color: '#E5E7EB' }
+                    },
+                    x: {
+                        ticks: { color: '#6B7280' },
+                        grid: { display: false }
+                    }
+                }
+            };
+            
+            // Social Dominance Chart
+            new Chart(document.getElementById('socialDominanceChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                    datasets: [{
+                        label: 'SOL Price ($)',
+                        data: [100, 110, 95, 130, 150, 180, 170, 205],
+                        borderColor: '#1F7A8C',
+                        backgroundColor: 'rgba(31, 122, 140, 0.1)',
+                        fill: true,
+                        yAxisID: 'y',
+                        tension: 0.4
+                    }, {
+                        label: 'Social Dominance (%)',
+                        data: [2.5, 3.0, 2.8, 4.5, 5.0, 7.5, 6.8, 8.9],
+                        borderColor: '#D97706',
+                        backgroundColor: 'transparent',
+                        yAxisID: 'y1',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Price ($)', color: '#1F7A8C' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Dominance (%)', color: '#D97706' },
+                            grid: { drawOnChartArea: false }
+                        },
+                        x: { ticks: { color: '#6B7280' }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // Analyst Predictions Chart
+            new Chart(document.getElementById('analystPredictionsChart'), {
+                type: 'bar',
+                data: {
+                    labels: analystPredictions.map(p => p.name),
+                    datasets: [{
+                        label: 'Price Target ($)',
+                        data: analystPredictions.map(p => p.target),
+                        backgroundColor: '#1F7A8C',
+                        borderColor: '#165a68',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` Target: $${context.raw}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Price ($)', color: '#4B5563' }
+                        }
+                    }
+                }
+            });
+
+            // On-Chain Metrics Chart (in modal)
+            new Chart(document.getElementById('onChainMetricsChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['DEX Volume (Daily)', 'TVL', 'REV (Jan 2025)'],
+                    datasets: [{
+                        label: 'Value (in Billions $)',
+                        data: [4.5, 9, 0.55],
+                        backgroundColor: ['#1F7A8C', '#4338CA', '#D97706'],
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                     plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` $${context.raw} Billion`;
+                                }
+                            }
+                        }
+                    },
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin 2024 Cycle Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals & Subtle Gold -->
+    <!-- Application Structure Plan: A thematic, scroll-driven narrative with interactive dashboards. The structure begins with the main conclusion (the price forecast) to immediately answer the user's core question. It then logically flows through the "why" (the new market paradigm), the current market state (sentiment dashboard), historical context (cycle comparison), and future outlook (prediction models). This top-down approach is more intuitive for a web experience than a linear report, allowing users to digest the key takeaway first and then explore the supporting data at their own pace. A sticky navigation facilitates easy jumping between these thematic sections. -->
+    <!-- Visualization & Content Choices: The report's tables and data points are transformed into interactive visualizations to enhance understanding. Table 1 (Halving Data) becomes a bar chart for easy comparison of post-halving gains. Table 2 (On-Chain Metrics) becomes a live dashboard with tooltips for context. Table 3 (Cycle Comparison) is visualized through an interactive line chart where users can toggle cycles to see differences in price action. Table 4 (Predictions) is integrated into a forecast chart, allowing users to overlay different analyst targets. This approach uses Chart.js (Canvas) and interactive HTML/CSS, avoiding SVG/Mermaid, to make the data explorable and engaging, directly supporting the application's user-centric design. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF7;
+            color: #332d2d;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link.active {
+            color: #D97706;
+            border-bottom-color: #D97706;
+        }
+        .metric-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .has-tooltip:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="sticky top-0 bg-[#FDFBF7]/80 backdrop-blur-lg z-50 border-b border-amber-200/50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-amber-700">BTC 2024</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#forecast" class="nav-link px-3 py-2 text-sm font-medium text-stone-600 hover:text-amber-600 border-b-2 border-transparent">Forecast</a>
+                        <a href="#paradigm" class="nav-link px-3 py-2 text-sm font-medium text-stone-600 hover:text-amber-600 border-b-2 border-transparent">New Paradigm</a>
+                        <a href="#sentiment" class="nav-link px-3 py-2 text-sm font-medium text-stone-600 hover:text-amber-600 border-b-2 border-transparent">Sentiment</a>
+                        <a href="#cycles" class="nav-link px-3 py-2 text-sm font-medium text-stone-600 hover:text-amber-600 border-b-2 border-transparent">Cycles</a>
+                        <a href="#models" class="nav-link px-3 py-2 text-sm font-medium text-stone-600 hover:text-amber-600 border-b-2 border-transparent">Models</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="forecast" class="py-16 md:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-stone-800">
+                    Bitcoin 2024 Cycle Top Forecast
+                </h1>
+                <div class="mt-8 text-6xl md:text-8xl font-extrabold text-amber-600 tracking-tight">
+                    $115,000 - $165,000
+                </div>
+                <p class="mt-6 max-w-3xl mx-auto text-lg text-stone-600">
+                    This report synthesizes on-chain data, historical cycles, and macroeconomic trends to project a realistic price target for the 2024 cycle top. The current cycle is defined by a new paradigm of institutional adoption, fundamentally reshaping market dynamics away from retail-driven speculation and toward long-term, strategic accumulation.
+                </p>
+            </div>
+        </section>
+
+        <hr class="border-amber-200/30 w-1/2 mx-auto">
+
+        <section id="paradigm" class="py-16 md:py-24 bg-amber-50/50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-stone-800">A New Market Paradigm</h2>
+                    <p class="mt-4 text-lg text-stone-600 max-w-3xl mx-auto">
+                        The 2024 cycle is demonstrably different. Three core factors—the programmed supply shock of the halving, unprecedented institutional demand, and a shifting macroeconomic landscape—are creating a more mature and resilient market structure.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-amber-700">The Fourth Halving</h3>
+                        <p class="mt-2 text-stone-600">The April 2024 halving cut new Bitcoin issuance in half, a historically bullish supply shock. Uniquely, the market reached a new all-time high *before* this halving, signaling that sophisticated investors are now front-running the event, a sign of increasing market efficiency.</p>
+                        <div class="mt-4 h-64">
+                             <div class="chart-container" style="height: 250px; max-height: 250px;">
+                                <canvas id="halvingChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-amber-700">The Institutional Tide</h3>
+                        <p class="mt-2 text-stone-600">The approval of US Spot Bitcoin ETFs in January 2024 created a regulated on-ramp for massive capital inflows. This, combined with corporate treasury allocations, establishes a new, persistent buy-side pressure from long-term holders, fundamentally reducing the actively traded supply.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-amber-700">Macroeconomic Backdrop</h3>
+                        <p class="mt-2 text-stone-600">Bitcoin is a dual-natured asset. While its fixed supply makes it a long-term hedge against inflation, its short-term price action is still correlated with risk-on assets and influenced by global factors like central bank interest rate policies and geopolitical events, making it sensitive to broader market sentiment.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-amber-200/30 w-1/2 mx-auto">
+        
+        <section id="sentiment" class="py-16 md:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-stone-800">Decoding Market Sentiment</h2>
+                    <p class="mt-4 text-lg text-stone-600 max-w-3xl mx-auto">
+                        Beyond social buzz, on-chain data provides an objective view of market health. These key metrics reveal the behavior of investors on the blockchain, offering deeper insights than surface-level sentiment.
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="metric-card bg-white p-6 rounded-lg shadow-sm text-center has-tooltip">
+                        <h4 class="text-lg font-semibold text-stone-700">MVRV Ratio</h4>
+                        <p class="text-3xl font-bold text-amber-600 mt-2">2.23</p>
+                        <p class="text-sm text-stone-500 mt-1">Overvalued</p>
+                        <div class="tooltip absolute bottom-full mb-2 w-64 bg-stone-800 text-white text-xs rounded py-1 px-2 text-center">
+                           Measures market value vs. realized value. A high ratio suggests the market holds significant unrealized profits.
+                        </div>
+                    </div>
+                     <div class="metric-card bg-white p-6 rounded-lg shadow-sm text-center has-tooltip">
+                        <h4 class="text-lg font-semibold text-stone-700">Exchange Netflow</h4>
+                        <p class="text-3xl font-bold text-red-500 mt-2">+1.55K</p>
+                        <p class="text-sm text-stone-500 mt-1">Selling Pressure</p>
+                        <div class="tooltip absolute bottom-full mb-2 w-64 bg-stone-800 text-white text-xs rounded py-1 px-2 text-center">
+                           Tracks coins moving to/from exchanges. Positive netflow (inflows) suggests intent to sell.
+                        </div>
+                    </div>
+                     <div class="metric-card bg-white p-6 rounded-lg shadow-sm text-center has-tooltip">
+                        <h4 class="text-lg font-semibold text-stone-700">Funding Rates</h4>
+                        <p class="text-3xl font-bold text-green-500 mt-2">0.0082</p>
+                        <p class="text-sm text-stone-500 mt-1">Bullish Leverage</p>
+                         <div class="tooltip absolute bottom-full mb-2 w-64 bg-stone-800 text-white text-xs rounded py-1 px-2 text-center">
+                           Payments between traders in perpetual futures. Positive rates indicate longs are dominant and bullish.
+                        </div>
+                    </div>
+                     <div class="metric-card bg-white p-6 rounded-lg shadow-sm text-center has-tooltip">
+                        <h4 class="text-lg font-semibold text-stone-700">Retail Activity</h4>
+                        <p class="text-3xl font-bold text-stone-500 mt-2">Neutral</p>
+                        <p class="text-sm text-stone-500 mt-1">Steady State</p>
+                         <div class="tooltip absolute bottom-full mb-2 w-64 bg-stone-800 text-white text-xs rounded py-1 px-2 text-center">
+                           Measures the on-chain activity of smaller, retail-sized investors. Neutral indicates no major shifts.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-amber-200/30 w-1/2 mx-auto">
+
+        <section id="cycles" class="py-16 md:py-24 bg-amber-50/50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-stone-800">Cycles Through Time</h2>
+                    <p class="mt-4 text-lg text-stone-600 max-w-3xl mx-auto">
+                        Each Bitcoin bull run has had a unique character. The evolution from a retail-driven ICO craze in 2017 to today's institutionally-backed market shows a clear trend towards maturation. Select a cycle to see its key drivers and compare market structures.
+                    </p>
+                </div>
+                <div class="grid lg:grid-cols-3 gap-8 items-start">
+                    <div class="lg:col-span-1">
+                        <div id="cycle-info" class="bg-white p-6 rounded-lg shadow-sm">
+                            <h3 id="cycle-title" class="text-2xl font-bold text-amber-700">2024 Bull Run</h3>
+                            <div class="mt-4 space-y-3">
+                                <div>
+                                    <h4 class="font-semibold text-stone-800">Key Drivers:</h4>
+                                    <p id="cycle-drivers" class="text-stone-600">Institutional adoption (ETFs); Corporate treasuries</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-stone-800">Market Narrative:</h4>
+                                    <p id="cycle-narrative" class="text-stone-600">Strategic reserve; Formal financial asset</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-stone-800">Market Structure:</h4>
+                                    <p id="cycle-structure" class="text-stone-600">Accumulation and long-term capital allocation</p>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="mt-4 flex flex-col space-y-2">
+                            <button onclick="updateCycleInfo('2024')" class="cycle-btn bg-amber-600 text-white p-3 rounded-md font-semibold">2024 Cycle</button>
+                            <button onclick="updateCycleInfo('2021')" class="cycle-btn bg-white p-3 rounded-md font-semibold text-stone-700 border border-stone-200">2021 Cycle</button>
+                            <button onclick="updateCycleInfo('2017')" class="cycle-btn bg-white p-3 rounded-md font-semibold text-stone-700 border border-stone-200">2017 Cycle</button>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                             <div class="chart-container">
+                                <canvas id="cycleComparisonChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-amber-200/30 w-1/2 mx-auto">
+
+        <section id="models" class="py-16 md:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-stone-800">Forecasting the Future</h2>
+                    <p class="mt-4 text-lg text-stone-600 max-w-3xl mx-auto">
+                        Various models attempt to forecast Bitcoin's long-term trajectory. While none are perfect, they provide valuable frameworks for understanding potential price paths based on scarcity and historical trends. The chart below shows a range of analyst predictions for the 2024/2025 cycle top.
+                    </p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm">
+                     <div class="chart-container">
+                        <canvas id="predictionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-stone-800 text-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+            <p>This interactive report is based on the "Analysis of Bitcoin Market Sentiment and 2024 Cycle Top Price" research document.</p>
+            <p class="text-sm text-stone-400 mt-2">Data is for informational purposes only and does not constitute financial advice.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sections = document.querySelectorAll('main section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.4
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            
+            navLinks.forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            const halvingData = {
+                labels: ['2012 Halving', '2016 Halving', '2020 Halving'],
+                datasets: [{
+                    label: 'Post-Halving Price Increase (%)',
+                    data: [5200, 315, 230],
+                    backgroundColor: ['#F59E0B', '#FBBF24', '#FCD34D'],
+                    borderColor: '#D97706',
+                    borderWidth: 1
+                }]
+            };
+
+            const halvingCtx = document.getElementById('halvingChart').getContext('2d');
+            new Chart(halvingCtx, {
+                type: 'bar',
+                data: halvingData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Price Increase 1 Year After Halving' }
+                    },
+                    scales: {
+                        y: { 
+                            type: 'logarithmic',
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return value.toLocaleString() + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const cycleData = {
+                '2017': { title: '2017 Bull Run', drivers: 'Retail investors; ICO boom', narrative: '"Wild West" speculation; Gateway to altcoins', structure: 'Trading and speculation', increase: 1900 },
+                '2021': { title: '2021 Bull Run', drivers: 'Institutional adoption; Retail investors', narrative: '"Digital gold"; Inflation hedge', structure: 'Accumulation for long-term holdings', increase: 700 },
+                '2024': { title: '2024 Bull Run', drivers: 'Institutional adoption (ETFs); Corporate treasuries', narrative: 'Strategic reserve; Formal financial asset', structure: 'Accumulation and long-term capital allocation', increase: null }
+            };
+
+            window.updateCycleInfo = function(cycle) {
+                const info = cycleData[cycle];
+                document.getElementById('cycle-title').innerText = info.title;
+                document.getElementById('cycle-drivers').innerText = info.drivers;
+                document.getElementById('cycle-narrative').innerText = info.narrative;
+                document.getElementById('cycle-structure').innerText = info.structure;
+                
+                document.querySelectorAll('.cycle-btn').forEach(btn => {
+                    btn.classList.remove('bg-amber-600', 'text-white');
+                    btn.classList.add('bg-white', 'text-stone-700', 'border', 'border-stone-200');
+                });
+                
+                const selectedBtn = event.target;
+                selectedBtn.classList.add('bg-amber-600', 'text-white');
+                selectedBtn.classList.remove('bg-white', 'text-stone-700', 'border', 'border-stone-200');
+            }
+            
+            const cycleComparisonData = {
+                labels: ['Start', 'Mid-Point', 'Peak'],
+                datasets: [
+                    {
+                        label: '2017 Cycle (Retail FOMO)',
+                        data: [1, 5, 20],
+                        borderColor: '#FBBF24',
+                        tension: 0.4,
+                        borderDash: [5, 5]
+                    },
+                    {
+                        label: '2021 Cycle (Institutional Entry)',
+                        data: [1, 4, 8],
+                        borderColor: '#0EA5E9',
+                        tension: 0.4,
+                        borderDash: [5, 5]
+                    },
+                    {
+                        label: '2024 Cycle (Gradual Waves)',
+                        data: [1, 2.5, 4.5],
+                        borderColor: '#D97706',
+                        tension: 0.4,
+                        borderWidth: 3
+                    }
+                ]
+            };
+            
+            const cycleCtx = document.getElementById('cycleComparisonChart').getContext('2d');
+            new Chart(cycleCtx, {
+                type: 'line',
+                data: cycleComparisonData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Normalized Price Trajectory by Cycle' },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Price Multiple from Cycle Start' }
+                        }
+                    }
+                }
+            });
+            
+            const predictionData = {
+                labels: ['Low', 'Mid', 'High'],
+                datasets: [
+                    {
+                        label: 'Oanda',
+                        data: [60000, 69000, 78000],
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 1,
+                        type: 'bar'
+                    },
+                    {
+                        label: 'Peter Brandt',
+                        data: [120000, 160000, 200000],
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1,
+                        type: 'bar'
+                    },
+                    {
+                        label: '21st Capital',
+                        data: [150000, 175000, 200000],
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderColor: 'rgba(245, 158, 11, 1)',
+                        borderWidth: 1,
+                        type: 'bar'
+                    },
+                     {
+                        label: 'Bernstein / Max Keiser',
+                        data: [200000, 200000, 200000],
+                        backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 1,
+                        type: 'bar'
+                    },
+                    {
+                        label: 'Report Forecast',
+                        data: [115000, 140000, 165000],
+                        borderColor: '#D97706',
+                        borderWidth: 4,
+                        type: 'line',
+                        fill: false,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#D97706'
+                    }
+                ]
+            };
+
+            const predictionCtx = document.getElementById('predictionChart').getContext('2d');
+            new Chart(predictionCtx, {
+                data: predictionData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: '2024/2025 Analyst Price Targets ($USD)' },
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000) + 'k';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

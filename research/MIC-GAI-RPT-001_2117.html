@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Australia's Demographic Crossover: A Projection Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #E1F3FF;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .kpi-value {
+            color: #004AAD;
+        }
+        .section-title {
+            color: #004AAD;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="text-gray-700">
+
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold section-title">Australia's Demographic Crossover</h1>
+            <p class="mt-2 text-lg md:text-xl text-gray-600">A Long-Term Projection of Two Possible Futures</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="crossover" class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-2 section-title">The Crossover Point</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">The year when the Muslim population is projected to overtake the non-Muslim population is exceptionally sensitive to the underlying assumptions about fertility. Below, we compare two distinct scenarios.</p>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="card text-center border-4 border-red-300">
+                    <h3 class="font-bold text-xl mb-2">Scenario A: Hypothetical</h3>
+                    <p class="text-sm text-gray-500 mb-4">(Based on high, user-defined fertility rates)</p>
+                    <p class="text-gray-600">Projected Crossover Year:</p>
+                    <p class="text-7xl font-extrabold kpi-value">2088</p>
+                </div>
+                 <div class="card text-center border-4 border-green-300">
+                    <h3 class="font-bold text-xl mb-2">Scenario B: Evidence-Based</h3>
+                    <p class="text-sm text-gray-500 mb-4">(Based on observed demographic data)</p>
+                    <p class="text-gray-600">Projected Crossover Year:</p>
+                    <p class="text-7xl font-extrabold kpi-value">2117</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="trajectories" class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-8 section-title">Visualizing the Trajectories</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="card">
+                    <h3 class="text-xl font-semibold text-center mb-4">Scenario A: Hypothetical Trajectory</h3>
+                    <div class="chart-container">
+                       <canvas id="crossoverChartA"></canvas>
+                   </div>
+                   <p class="text-center mt-4 text-sm text-gray-600">Extremely high fertility assumptions (TFR 4.5 for Muslims, 2.5 for non-Muslims) create rapid, exponential growth, leading to an earlier crossover.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-semibold text-center mb-4">Scenario B: Evidence-Based Trajectory</h3>
+                    <div class="chart-container">
+                       <canvas id="crossoverChartB"></canvas>
+                   </div>
+                   <p class="text-center mt-4 text-sm text-gray-600">Realistic fertility rates (TFR 2.8 for Muslims, 1.45 for non-Muslims) result in more moderate growth and a much later crossover point.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="drivers" class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-8 section-title">What Drives the Difference?</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">The vast difference in outcomes between the two scenarios is driven by three key demographic factors: fertility, age structure, and migration.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card flex flex-col justify-center">
+                    <h3 class="text-xl font-semibold text-center mb-4">The "Fertility Effect"</h3>
+                    <p class="text-gray-600 text-center mb-4">The Total Fertility Rate (TFR) is the most powerful variable. The gap between the hypothetical and evidence-based TFRs is the primary reason for the 29-year difference in the crossover point.</p>
+                    <div class="text-center">
+                        <p class="text-lg font-semibold">Hypothetical Muslim TFR: <span class="text-red-500 font-bold">4.5</span></p>
+                        <p class="text-lg font-semibold">Evidence-Based Muslim TFR: <span class="text-green-500 font-bold">2.8</span></p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-semibold text-center mb-4">The Power of Youth</h3>
+                     <div class="chart-container mx-auto" style="height: 250px;">
+                        <canvas id="medianAgeChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-sm text-gray-600">A younger median age gives the Muslim community a "demographic momentum," amplifying its natural growth rate compared to the older non-Muslim population.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-semibold text-center mb-4">The Role of Migration</h3>
+                    <div class="chart-container h-64 md:h-auto">
+                        <canvas id="migrantCompositionChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-sm text-gray-600">Migration is the primary engine of growth for the Muslim community, with a religious profile vastly different from the resident population.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="context" class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-8 section-title">The Bigger Picture: Australia's Changing Identity</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="card">
+                    <h3 class="text-xl font-semibold text-center mb-4">The Shifting Face of Belief</h3>
+                    <div class="chart-container mx-auto" style="height: 350px;">
+                        <canvas id="beliefTrendsChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-sm text-gray-600">The most profound shift is not just the growth of one religion, but the rapid rise of secularization within the non-Muslim cohort.</p>
+                </div>
+                <div class="card">
+                    <h3 class="text-xl font-semibold text-center mb-4">Starting Point: Religious Composition (2021)</h3>
+                    <div class="chart-container h-64 md:h-auto">
+                        <canvas id="religiousCompositionChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-sm text-gray-600">This provides the baseline for all projections, showing a diverse nation where Christianity is declining and 'No Religion' is on the rise.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white mt-12">
+        <div class="container mx-auto px-6 py-4 text-center text-gray-600 text-sm">
+            <p>Data sourced and synthesized from the report: "Australia's Demographic Future: A 20-Year Projection (2025-2045)".</p>
+            <p>&copy; 2025 Infographic Generator. Visualizations are for illustrative purposes based on report data.</p>
+        </div>
+    </footer>
+
+    <script>
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            }
+            return label;
+        };
+
+        const sharedChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTitleCallback
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        callback: function(value) {
+                            if (value >= 1000000) return (value / 1000000) + 'M';
+                            if (value >= 1000) return (value / 1000) + 'K';
+                            return value;
+                        }
+                    }
+                }
+            }
+        };
+
+        const palette = {
+            darkBlue: '#004AAD',
+            brightBlue: '#0079FF',
+            mediumBlue: '#52A9FF',
+            lightBlue: '#89CFF3',
+            bgBlue: '#E1F3FF',
+            green: '#22c55e',
+            red: '#ef4444',
+            gray: '#6b7280'
+        };
+
+        const generateProjectionData = (startYear, endYear, step, initialMuslim, initialNonMuslim, muslimCAGR, nonMuslimCAGR) => {
+            const labels = [];
+            const muslimData = [];
+            const nonMuslimData = [];
+            for (let year = startYear; year <= endYear; year += step) {
+                labels.push(year);
+                const yearsElapsed = year - startYear;
+                muslimData.push(initialMuslim * Math.pow(1 + muslimCAGR, yearsElapsed));
+                nonMuslimData.push(initialNonMuslim * Math.pow(1 + nonMuslimCAGR, yearsElapsed));
+            }
+            return { labels, muslimData, nonMuslimData };
+        };
+
+        const crossoverDataA = generateProjectionData(2025, 2105, 10, 1033000, 26367013, 0.071, 0.017);
+        new Chart(document.getElementById('crossoverChartA').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: crossoverDataA.labels,
+                datasets: [{
+                    label: 'Muslim Population (Hypothetical)',
+                    data: crossoverDataA.muslimData,
+                    borderColor: palette.red,
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }, {
+                    label: 'Non-Muslim Population (Hypothetical)',
+                    data: crossoverDataA.nonMuslimData,
+                    borderColor: palette.darkBlue,
+                    backgroundColor: 'rgba(0, 74, 173, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { ...sharedChartOptions }
+        });
+
+        const crossoverDataB = generateProjectionData(2025, 2125, 10, 1033000, 26367013, 0.042, 0.006);
+        new Chart(document.getElementById('crossoverChartB').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: crossoverDataB.labels,
+                datasets: [{
+                    label: 'Muslim Population (Evidence-Based)',
+                    data: crossoverDataB.muslimData,
+                    borderColor: palette.green,
+                    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }, {
+                    label: 'Non-Muslim Population (Evidence-Based)',
+                    data: crossoverDataB.nonMuslimData,
+                    borderColor: palette.darkBlue,
+                    backgroundColor: 'rgba(0, 74, 173, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { ...sharedChartOptions }
+        });
+
+        new Chart(document.getElementById('medianAgeChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Australian Muslim Community', 'Total Australian Population'],
+                datasets: [{
+                    label: 'Median Age',
+                    data: [28, 38.3],
+                    backgroundColor: [palette.brightBlue, palette.lightBlue],
+                    borderColor: [palette.darkBlue, palette.mediumBlue],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...sharedChartOptions,
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true, title: { display: true, text: 'Years' } } }
+            }
+        });
+
+        new Chart(document.getElementById('migrantCompositionChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Other Religions (inc. Islam)', 'No Religion', 'Christian'],
+                datasets: [{
+                    data: [40.7, 28.5, 28.4],
+                    backgroundColor: [palette.brightBlue, palette.mediumBlue, palette.lightBlue],
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: { ...sharedChartOptions, plugins: { legend: { position: 'top' } } }
+        });
+
+        new Chart(document.getElementById('beliefTrendsChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['2016', '2021', '2026 (Proj.)'],
+                datasets: [{
+                    label: 'No Religion',
+                    data: [7047274, 9886957, 12726640],
+                    borderColor: palette.green,
+                    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                    fill: true,
+                    tension: 0.1
+                }, {
+                    label: 'Christianity',
+                    data: [12201600, 11148814, 10098000],
+                    borderColor: palette.red,
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    fill: true,
+                    tension: 0.1
+                }, {
+                    label: 'Islam',
+                    data: [604244, 813395, 1033000],
+                    borderColor: palette.brightBlue,
+                    backgroundColor: 'rgba(0, 121, 255, 0.2)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: { ...sharedChartOptions }
+        });
+        
+        new Chart(document.getElementById('religiousCompositionChart').getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: ['Christianity', 'No Religion', 'Islam', 'Other'],
+                datasets: [{
+                    data: [43.9, 38.9, 3.2, 14],
+                    backgroundColor: [palette.darkBlue, palette.mediumBlue, palette.brightBlue, palette.lightBlue],
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: { ...sharedChartOptions, plugins: { legend: { position: 'top' } } }
+        });
+
+    </script>
+</body>
+</html>

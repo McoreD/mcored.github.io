@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUI 2025 Interactive Market Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: A dashboard-style, thematic SPA is chosen over a linear report format for superior usability. The structure begins with the main conclusion (the price forecast) in a hero section for immediate clarity. A sticky navigation bar allows users to jump to thematic sections: Bull Case, Bear Case, Competitive Analysis, and Price Targets. This non-linear approach empowers users to explore the information based on their interests. Interactive tabs within the Bull and Bear sections organize detailed arguments into digestible chunks, preventing information overload. This design prioritizes quick comprehension of the core thesis and provides layered, interactive pathways to explore the supporting data, making a complex analysis accessible and engaging. -->
+    <!-- Visualization & Content Choices: 
+        - TVL Growth: Report Info -> SUI's 220% TVL growth vs competitors. Goal -> Compare. Viz -> Bar Chart. Interaction -> Hover tooltips. Justification -> Visually prove SUI's market outperformance. Library -> Chart.js.
+        - Token Unlocks: Report Info -> 2025 unlock schedule. Goal -> Inform/Change. Viz -> Bar Chart. Interaction -> Hover tooltips. Justification -> Make the abstract supply risk concrete and quantifiable. Library -> Chart.js.
+        - Price Target Triangulation: Report Info -> Analyst, technical, and fundamental targets. Goal -> Synthesize/Compare. Viz -> Bar Chart. Interaction -> Hover tooltips. Justification -> Visually demonstrate how the final forecast range is derived from multiple methodologies. Library -> Chart.js.
+        - Bull/Bear Arguments: Report Info -> Various fundamental points. Goal -> Organize. Presentation -> Tabbed Interface. Interaction -> Click to reveal content. Justification -> Group related arguments for clarity and prevent overwhelming the user with text. Method -> HTML/CSS/JS.
+        - Competitive Metrics: Report Info -> SUI vs Solana vs Aptos table. Goal -> Compare. Presentation -> HTML Table. Interaction -> None. Justification -> A structured table is the clearest way to present direct metric-for-metric comparisons. Method -> HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF7;
+            color: #3D3D3D;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 24rem;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 24rem;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #4A90E2;
+            border-bottom-color: #4A90E2;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background-color: #4A90E2;
+            color: #FFFFFF;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="sticky top-0 z-50 bg-[#FDFBF7]/80 backdrop-blur-lg shadow-sm">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl text-[#4A90E2]">SUI</span>
+                    <span class="font-semibold text-xl ml-2">Analysis</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Overview</a>
+                        <a href="#bull-case" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Bull Case</a>
+                        <a href="#bear-case" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Bear Case</a>
+                        <a href="#competition" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Competition</a>
+                        <a href="#forecast" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Forecast</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <section id="hero" class="text-center py-12 md:py-20">
+            <h1 class="text-4xl md:text-6xl font-bold tracking-tight">SUI 2025 Cycle Top Forecast</h1>
+            <div class="mt-6 md:mt-8">
+                <p class="text-5xl md:text-7xl font-extrabold text-[#4A90E2]">$10.77 - $16.00</p>
+                <p class="mt-3 text-lg text-gray-600">High-Conviction Probabilistic Price Range</p>
+            </div>
+            <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <div class="bg-white/60 p-6 rounded-xl shadow-md">
+                    <p class="text-sm font-medium text-gray-500">Total Value Locked (TVL)</p>
+                    <p class="text-3xl font-bold text-[#4A90E2]">$2.2B+</p>
+                </div>
+                <div class="bg-white/60 p-6 rounded-xl shadow-md">
+                    <p class="text-sm font-medium text-gray-500">2024-25 TVL Growth</p>
+                    <p class="text-3xl font-bold text-[#81C784]">220%</p>
+                </div>
+                <div class="bg-white/60 p-6 rounded-xl shadow-md">
+                    <p class="text-sm font-medium text-gray-500">Time-to-Finality</p>
+                    <p class="text-3xl font-bold text-[#4A90E2]">~400ms</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="my-12 border-t border-gray-200"></div>
+
+        <section id="overview" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-4 text-center">Analysis Overview</h2>
+            <p class="max-w-3xl mx-auto text-center text-gray-700 leading-relaxed">
+                This analysis presents a predominantly bullish outlook for SUI in 2025, driven by its superior technology, strategic roadmap, and accelerating institutional adoption. The core of SUI's market story is the dynamic tension between these powerful growth drivers and the significant supply pressure from scheduled token unlocks. This interactive dashboard allows you to explore the key factors shaping SUI's potential cycle top.
+            </p>
+        </section>
+
+        <section id="bull-case" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 text-center">The Bull Case for SUI</h2>
+            <div id="bull-tabs" class="max-w-5xl mx-auto">
+                <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-6">
+                    <button data-tab="tech" class="tab-btn active px-4 py-2 rounded-full text-sm font-semibold bg-white shadow-sm">Technological Edge</button>
+                    <button data-tab="growth" class="tab-btn px-4 py-2 rounded-full text-sm font-semibold bg-white shadow-sm">Ecosystem Growth</button>
+                    <button data-tab="institutional" class="tab-btn px-4 py-2 rounded-full text-sm font-semibold bg-white shadow-sm">Institutional Validation</button>
+                    <button data-tab="catalysts" class="tab-btn px-4 py-2 rounded-full text-sm font-semibold bg-white shadow-sm">2025 Catalysts</button>
+                </div>
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                    <div id="tech-content" class="tab-content fade-in">
+                        <h3 class="text-xl font-semibold mb-4">Architectural Superiority</h3>
+                        <p class="text-gray-600 mb-6">SUI's object-centric model is a paradigm shift from traditional blockchains, enabling parallel transaction processing. This results in unparalleled speed and efficiency, crucial for mass-adoption applications like gaming and DeFi.</p>
+                        <div class="grid md:grid-cols-3 gap-6 text-center">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h4 class="font-semibold">Near-Instant Finality</h4>
+                                <p class="text-2xl font-bold text-[#4A90E2]">~400ms</p>
+                                <p class="text-sm text-gray-500">For near-instant settlement.</p>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h4 class="font-semibold">zkLogin</h4>
+                                <p class="text-gray-600 mt-2">Onboarding with Web2 credentials (e.g., Google), removing the seed phrase barrier for mainstream users.</p>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h4 class="font-semibold">Sponsored Transactions</h4>
+                                <p class="text-gray-600 mt-2">DApps can pay gas fees for users, creating a frictionless, "gasless" experience.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="growth-content" class="tab-content hidden fade-in">
+                        <h3 class="text-xl font-semibold mb-4">Explosive On-Chain Growth</h3>
+                        <p class="text-gray-600 mb-6">SUI's growth in Total Value Locked (TVL) has dramatically outpaced the broader market and key competitors, signaling strong capital inflow and developer confidence. This chart visualizes SUI's dominant performance in attracting liquidity.</p>
+                        <div class="chart-container max-w-2xl mx-auto">
+                            <canvas id="tvlGrowthChart"></canvas>
+                        </div>
+                    </div>
+                    <div id="institutional-content" class="tab-content hidden fade-in">
+                        <h3 class="text-xl font-semibold mb-4">The "Smart Money" Has Arrived</h3>
+                        <p class="text-gray-600 mb-6">Growing interest from major financial institutions provides strong validation of SUI's long-term potential and creates regulated pathways for massive capital inflows.</p>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-100 rounded-lg"><strong>Grayscale Trusts:</strong> Launch of trusts for SUI, DeepBook, and Walrus signals institutional conviction in the entire tech stack.</div>
+                            <div class="p-4 bg-gray-100 rounded-lg"><strong>Spot ETF Filings:</strong> Applications by 21Shares/ARK Invest place SUI in an elite category for mainstream investment products.</div>
+                            <div class="p-4 bg-gray-100 rounded-lg"><strong>Corporate Treasury:</strong> Mill City Ventures' allocation to SUI sets a powerful precedent for corporate adoption beyond Bitcoin.</div>
+                        </div>
+                    </div>
+                    <div id="catalysts-content" class="tab-content hidden fade-in">
+                        <h3 class="text-xl font-semibold mb-4">Roadmap for Value Accrual</h3>
+                        <p class="text-gray-600 mb-6">SUI's 2025 roadmap is packed with high-impact deliverables designed to enhance utility, attract users, and drive demand for the SUI token.</p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold">Native Ethereum Bridge (Q3 '25)</h4>
+                                <p class="text-sm text-gray-600">A secure gateway for billions in liquidity to flow from Ethereum's DeFi ecosystem.</p>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold">SuiPlay0X1 Handheld</h4>
+                                <p class="text-sm text-gray-600">A dedicated gaming device to seamlessly onboard millions of mainstream gamers.</p>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold">DeepBook v3 & Walrus</h4>
+                                <p class="text-sm text-gray-600">Upgrades to native on-chain infrastructure for DeFi and data-intensive dApps.</p>
+                            </div>
+                             <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold">Strategic Partnerships</h4>
+                                <p class="text-sm text-gray-600">Alliances with giants like Sega and ONE Championship provide access to massive user bases.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="bear-case" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 text-center">The Bear Case & Key Risks</h2>
+             <div id="bear-tabs" class="max-w-5xl mx-auto">
+                <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-6">
+                    <button data-tab="unlocks" class="tab-btn active px-4 py-2 rounded-full text-sm font-semibold bg-white shadow-sm">Supply Pressure</button>
+                    <button data-tab="valuation" class="tab-btn px-4 py-2 rounded-full text-sm font-semibold bg-white shadow-sm">Valuation & Other Risks</button>
+                </div>
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                    <div id="unlocks-content" class="tab-content fade-in">
+                        <h3 class="text-xl font-semibold mb-4">Token Unlock Headwinds</h3>
+                        <p class="text-gray-600 mb-6">SUI faces significant, scheduled token unlocks throughout 2025, creating a persistent source of potential sell pressure. While these unlocks provide necessary liquidity for institutional buyers, they require continuous strong demand to be absorbed without suppressing the price.</p>
+                        <div class="chart-container max-w-2xl mx-auto">
+                            <canvas id="unlocksChart"></canvas>
+                        </div>
+                    </div>
+                    <div id="valuation-content" class="tab-content hidden fade-in">
+                        <h3 class="text-xl font-semibold mb-4">Premium Valuation & Execution Risk</h3>
+                        <p class="text-gray-600 mb-6">SUI's high valuation relative to its current fee generation demands near-flawless execution of its ambitious roadmap. The project also operates in a fiercely competitive market and is not immune to potential security vulnerabilities.</p>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-red-50 rounded-lg"><strong>High P/F Multiple:</strong> SUI's Price-to-Fees multiple of 636x is significantly higher than Solana's 67x, pricing in massive future growth.</div>
+                            <div class="p-4 bg-red-50 rounded-lg"><strong>Fierce Competition:</strong> The L1 space is crowded, with well-entrenched competitors like Solana continuously innovating.</div>
+                            <div class="p-4 bg-red-50 rounded-lg"><strong>Security Exploits:</strong> As a complex system, SUI remains at risk of bugs or exploits that could damage investor confidence.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="competition" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 text-center">Competitive Landscape</h2>
+            <p class="max-w-3xl mx-auto text-center text-gray-700 leading-relaxed mb-8">
+                SUI has established a clear lead over its direct Move-based rival, Aptos, in key economic metrics. While still trailing the incumbent leader Solana in raw throughput and fee generation, SUI's superior capital attraction (TVL growth) and near-instant finality give it a distinct competitive edge for user-centric applications.
+            </p>
+            <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-gray-50 text-xs text-gray-700 uppercase">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Metric</th>
+                            <th scope="col" class="px-6 py-3 text-center bg-blue-50">SUI</th>
+                            <th scope="col" class="px-6 py-3 text-center">Solana</th>
+                            <th scope="col" class="px-6 py-3 text-center">Aptos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="px-6 py-4 font-semibold">Avg. Real-World TPS</td>
+                            <td class="px-6 py-4 text-center bg-blue-50">57</td>
+                            <td class="px-6 py-4 text-center font-bold text-[#81C784]">~4,700</td>
+                            <td class="px-6 py-4 text-center">49</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="px-6 py-4 font-semibold">Time-to-Finality</td>
+                            <td class="px-6 py-4 text-center bg-blue-50 font-bold text-[#81C784]">~400ms</td>
+                            <td class="px-6 py-4 text-center">~2.5s</td>
+                            <td class="px-6 py-4 text-center">>1s</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="px-6 py-4 font-semibold">TVL (USD)</td>
+                            <td class="px-6 py-4 text-center bg-blue-50">~$2.2B</td>
+                            <td class="px-6 py-4 text-center font-bold text-[#81C784]">> $10B</td>
+                            <td class="px-6 py-4 text-center">~$0.93B</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="px-6 py-4 font-semibold">TVL Growth (YTD '25)</td>
+                            <td class="px-6 py-4 text-center bg-blue-50 font-bold text-[#81C784]">220%</td>
+                            <td class="px-6 py-4 text-center">140%</td>
+                            <td class="px-6 py-4 text-center">~100%</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 font-semibold">Price/Fees Multiple</td>
+                            <td class="px-6 py-4 text-center bg-blue-50 font-bold text-[#E57373]">636x</td>
+                            <td class="px-6 py-4 text-center">67x</td>
+                            <td class="px-6 py-4 text-center">N/A</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="forecast" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold mb-6 text-center">Price Target Synthesis</h2>
+            <p class="max-w-3xl mx-auto text-center text-gray-700 leading-relaxed mb-8">
+                The final 2025 cycle top forecast is derived by triangulating three distinct analytical models: aggregated analyst targets, technical chart projections, and a fundamental valuation based on market share capture. This multi-pronged approach provides a robust, data-driven price range.
+            </p>
+            <div class="grid lg:grid-cols-2 gap-8 items-center">
+                <div class="chart-container">
+                    <canvas id="priceTargetsChart"></canvas>
+                </div>
+                <div class="text-center lg:text-left">
+                    <p class="text-lg text-gray-600">Final Forecast Range</p>
+                    <p class="text-5xl font-extrabold text-[#4A90E2] my-2">$10.77 - $16.00</p>
+                    <div class="mt-6 space-y-4">
+                        <div>
+                            <p class="font-semibold">Base Case: $10.77</p>
+                            <p class="text-sm text-gray-600">The highest-conviction target, anchored by technical Elliott Wave analysis.</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold">Optimistic Case: $16.00</p>
+                            <p class="text-sm text-gray-600">A plausible "stretched" target based on capturing 5.5% of the smart contract market.</p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-dashed">
+                             <p class="font-semibold text-[#E57373]">Invalidation Point</p>
+                            <p class="text-sm text-gray-600">The macro bullish thesis is invalidated on a sustained break below the critical support of $2.20.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white mt-16">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+            <p>&copy; 2025 SUI Market Analysis. Data synthesized from a comprehensive research report for interactive exploration.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    if (context.chart.canvas.id === 'tvlGrowthChart') {
+                                        label += context.parsed.y + '%';
+                                    } else if (context.chart.canvas.id === 'unlocksChart') {
+                                        label += new Intl.NumberFormat().format(context.parsed.y) + ' SUI';
+                                    } else {
+                                        label += '$' + context.parsed.y.toFixed(2);
+                                    }
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                if (this.chart.canvas.id === 'tvlGrowthChart') {
+                                    return value + '%';
+                                }
+                                if (this.chart.canvas.id === 'unlocksChart') {
+                                    return (value / 1000000) + 'M';
+                                }
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            };
+
+            const wrapLabels = (labels, maxChars) => {
+                return labels.map(label => {
+                    if (label.length <= maxChars) return label;
+                    const words = label.split(' ');
+                    const lines = [];
+                    let currentLine = '';
+                    words.forEach(word => {
+                        if ((currentLine + word).length > maxChars) {
+                            lines.push(currentLine.trim());
+                            currentLine = '';
+                        }
+                        currentLine += word + ' ';
+                    });
+                    lines.push(currentLine.trim());
+                    return lines;
+                });
+            };
+
+            const tvlGrowthCtx = document.getElementById('tvlGrowthChart');
+            if (tvlGrowthCtx) {
+                new Chart(tvlGrowthCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['SUI', 'Solana', 'Overall Market'],
+                        datasets: [{
+                            label: '2024-2025 TVL Growth',
+                            data: [220, 140, 100],
+                            backgroundColor: ['#81C784', '#FFB74D', '#64B5F6'],
+                            borderColor: ['#5A9D5A', '#D99026', '#3C8DC5'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            const unlocksCtx = document.getElementById('unlocksChart');
+            if (unlocksCtx) {
+                new Chart(unlocksCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['May 2025', 'August 2025', 'November 2025'],
+                        datasets: [{
+                            label: 'Unlock Amount (SUI)',
+                            data: [70000000, 40000000, 100000000],
+                            backgroundColor: '#E57373',
+                            borderColor: '#C62828',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            const priceTargetsCtx = document.getElementById('priceTargetsChart');
+            if (priceTargetsCtx) {
+                const priceTargetLabels = ['Technical (Elliott Wave)', 'Fundamental (VanEck)', 'Analyst Base (Avg)', 'Analyst Stretch (Avg)'];
+                new Chart(priceTargetsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: wrapLabels(priceTargetLabels, 16),
+                        datasets: [{
+                            label: 'Price Target (USD)',
+                            data: [10.77, 16.00, 10.19, 19.00],
+                            backgroundColor: ['#4A90E2', '#81C784', '#FFB74D', '#BA68C8'],
+                            borderColor: ['#357ABD', '#5A9D5A', '#D99026', '#9C47B2'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            function setupTabs(containerId) {
+                const tabContainer = document.getElementById(containerId);
+                if (!tabContainer) return;
+                const tabButtons = tabContainer.querySelectorAll('.tab-btn');
+                const tabContents = tabContainer.querySelectorAll('.tab-content');
+
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const tabId = button.dataset.tab;
+
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+
+                        tabContents.forEach(content => {
+                            if (content.id === `${tabId}-content`) {
+                                content.classList.remove('hidden');
+                            } else {
+                                content.classList.add('hidden');
+                            }
+                        });
+                    });
+                });
+            }
+            
+            setupTabs('bull-tabs');
+            setupTabs('bear-tabs');
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

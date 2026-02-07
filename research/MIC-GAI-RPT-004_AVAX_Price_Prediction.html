@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVAX 2025: Interactive Market Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral Tech -->
+    <!-- Application Structure Plan: A top-down, thematic SPA dashboard. It starts with a hero section summarizing the key projection. A sticky navigation bar allows non-linear exploration of four core themes: Market Outlook, Fundamentals, Sentiment, and Technicals/Projections. This structure transforms the report from a static document into an exploratory tool. It prioritizes key takeaways and uses interactive elements like tabs and a scenario selector for the main chart to engage the user and simplify complex information, facilitating a deeper understanding of the analysis. -->
+    <!-- Visualization & Content Choices: Report Info -> Goal -> Viz/Presentation Method -> Interaction -> Justification -> Library/Method. 1. Market Context -> Inform -> Dynamic Stat Cards -> None -> Quick high-level context -> HTML/CSS. 2. Partnerships -> Organize/Inform -> Clickable Info Cards -> Hover/Click for details -> Highlights key validation points cleanly -> HTML/JS. 3. Sentiment Spectrum -> Compare -> Tabbed Component -> Click tabs to switch views -> Manages dense text without overwhelming the user -> HTML/JS. 4. Price Projections -> Explore/Compare -> Interactive Line Chart + Scenario Buttons -> Buttons update chart data & text -> Core interactive element for user engagement -> Chart.js. 5. Analyst Targets -> Compare -> Styled HTML Table -> Standard, clear data presentation -> HTML/CSS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #2c3e50;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 450px;
+                max-height: 500px;
+            }
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #E84142;
+            border-bottom-color: #E84142;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background-color: #E84142;
+            color: white;
+        }
+        .scenario-btn {
+            transition: all 0.3s ease;
+        }
+        .scenario-btn.active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav id="navbar" class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl md:text-2xl font-bold text-gray-800">
+                        <span class="text-red-600">AVAX</span> 2025 Analysis
+                    </h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#market" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600">Market Outlook</a>
+                        <a href="#fundamentals" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600">Fundamentals</a>
+                        <a href="#sentiment" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600">Sentiment</a>
+                        <a href="#technicals" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600">Projections</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section id="hero" class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">Avalanche (AVAX) 2025 Cycle Top Projection</h1>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">An interactive dashboard synthesizing macro trends, fundamental strengths, and market sentiment to project a potential 2025 peak price for Avalanche.</p>
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Key Resistance</h3>
+                    <p class="text-3xl font-bold text-red-600 mt-2">$25.00 - $26.00</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg border-2 border-red-600 transform scale-105">
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Base Case Projection</h3>
+                    <p class="text-4xl font-bold text-gray-900 mt-2">$70 - $110</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Bull Case High</h3>
+                    <p class="text-3xl font-bold text-green-600 mt-2">$140 - $180</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="market" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Macro-Economic Backdrop</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-4xl">The 2025 crypto market is defined by an institutionally-driven "supercycle," fueled by ETF inflows and a risk-on global environment. This creates a powerful tailwind for the entire asset class and sets the stage for a significant "altcoin season," where capital rotates from market leaders like Bitcoin into high-potential protocols like Avalanche.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="font-semibold text-gray-800">Total Crypto Market Cap</h4>
+                    <p class="text-3xl font-bold text-blue-600 mt-2">$4.11 Trillion+</p>
+                    <p class="text-sm text-gray-500 mt-1">Reflecting broad market rally.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="font-semibold text-gray-800">Bitcoin Dominance</h4>
+                    <p class="text-3xl font-bold text-orange-500 mt-2">~60% <span class="text-lg text-red-500 font-normal">(&#x2193;)</span></p>
+                    <p class="text-sm text-gray-500 mt-1">Signaling capital rotation to altcoins.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="font-semibold text-gray-800">Altcoin Season Index</h4>
+                    <p class="text-3xl font-bold text-purple-600 mt-2">40/100 <span class="text-lg text-green-500 font-normal">(&#x2191;)</span></p>
+                    <p class="text-sm text-gray-500 mt-1">Nascent but strengthening momentum.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="fundamentals" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Core Fundamental Thesis</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-4xl">Avalanche's value proposition is anchored in two converging narratives: its leadership in the tokenization of Real-World Assets (RWA) and the technical scalability provided by its Subnet architecture. This combination attracts significant institutional and enterprise-level adoption, creating a strong foundation for long-term growth.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">The RWA Narrative</h3>
+                    <p class="text-gray-600 mb-6">Avalanche is a primary destination for tokenizing traditional financial assets, a multi-trillion dollar opportunity. This is validated by tangible, high-profile partnerships that bring real-world value on-chain.</p>
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-md border-l-4 border-red-500">
+                            <h5 class="font-semibold">SkyBridge Capital</h5>
+                            <p class="text-sm text-gray-600">Tokenizing $300M of its flagship hedge funds on the Avalanche network.</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-md border-l-4 border-red-500">
+                            <h5 class="font-semibold">FIFA Collect</h5>
+                            <p class="text-sm text-gray-600">Migrating its global digital collectibles platform to a dedicated Avalanche Subnet.</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-md border-l-4 border-red-500">
+                            <h5 class="font-semibold">Institutional Exploration</h5>
+                            <p class="text-sm text-gray-600">Collaborations with financial titans like JP Morgan and Citibank for asset tokenization.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">The Subnet Ecosystem</h3>
+                    <p class="text-gray-600 mb-6">Subnets are custom, high-performance blockchains that offer enterprises the control and predictability needed for institutional adoption. Recent upgrades and incentive programs have drastically lowered barriers to entry, fueling ecosystem growth.</p>
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-md border-l-4 border-blue-500">
+                            <h5 class="font-semibold">Avalanche9000 Upgrade</h5>
+                            <p class="text-sm text-gray-600">Reduced the cost of launching a Subnet by over 99%, sparking developer interest.</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-md border-l-4 border-blue-500">
+                            <h5 class="font-semibold">"Retro9000" Program</h5>
+                            <p class="text-sm text-gray-600">$40M grant initiative to bootstrap the ecosystem, attracting over 150 unique projects.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sentiment" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Multi-Factor Sentiment Analysis</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-4xl">Sentiment around AVAX is a tale of two outlooks. Short-term traders are cautious, watching the key technical resistance. However, institutional "smart money" and the fundamental news cycle signal strong long-term conviction, creating a coiled spring of market potential.</p>
+            <div class="bg-white rounded-lg shadow-lg p-2 md:p-4">
+                <div class="flex flex-col sm:flex-row border-b border-gray-200 mb-4">
+                    <button id="tab-social" class="tab-btn flex-1 py-3 px-4 text-sm md:text-base font-semibold text-gray-600 rounded-t-md active">Social & Media</button>
+                    <button id="tab-institutional" class="tab-btn flex-1 py-3 px-4 text-sm md:text-base font-semibold text-gray-600 rounded-t-md">Institutional</button>
+                    <button id="tab-onchain" class="tab-btn flex-1 py-3 px-4 text-sm md:text-base font-semibold text-gray-600 rounded-t-md">On-Chain & Derivatives</button>
+                </div>
+                <div id="content-social" class="p-4 md:p-6">
+                    <h4 class="text-xl font-bold text-gray-800 mb-3">A Battle at the Resistance Line</h4>
+                    <p class="text-gray-600 mb-4">Discourse is sharply divided at the ~$25 resistance. Bulls see a breakout triggering FOMO and a rally to $50, while bears warn of a rejection and a test of lower supports. This creates a clear divergence: the price chart signals short-term caution, while the overwhelmingly positive news cycle fuels long-term optimism.</p>
+                    <div class="flex items-center justify-center space-x-8 text-center">
+                        <div>
+                            <p class="text-4xl">🐂</p>
+                            <p class="font-semibold text-green-600">Bullish View</p>
+                            <p class="text-sm text-gray-500">Breakout > $25 = FOMO</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold text-gray-400">vs</p>
+                        </div>
+                        <div>
+                            <p class="text-4xl">🐻</p>
+                            <p class="font-semibold text-red-600">Bearish View</p>
+                            <p class="text-sm text-gray-500">Rejection < $25 = Retest Support</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="content-institutional" class="p-4 md:p-6 hidden">
+                    <h4 class="text-xl font-bold text-gray-800 mb-3">"Smart Money" Signals Conviction</h4>
+                    <p class="text-gray-600 mb-4">Institutional players are demonstrating their belief in AVAX's long-term potential through direct financial actions, not just partnerships. These moves legitimize AVAX as a blue-chip asset suitable for traditional finance.</p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-green-500 mr-3 mt-1">&#10004;</span>
+                            <div><span class="font-semibold">VanEck Spot ETF Filing:</span> Indicates significant institutional demand and market maturity.</div>
+                        </li>
+                        <li class="flex items-start">
+                             <span class="text-green-500 mr-3 mt-1">&#10004;</span>
+                            <div><span class="font-semibold">The Crypto Co. Treasury Addition:</span> Designates AVAX as a "blue-chip" asset suitable for corporate balance sheets.</div>
+                        </li>
+                    </ul>
+                </div>
+                <div id="content-onchain" class="p-4 md:p-6 hidden">
+                    <h4 class="text-xl font-bold text-gray-800 mb-3">Market Coiling for a Move</h4>
+                    <p class="text-gray-600 mb-4">Quantitative data shows a market at equilibrium but preparing for volatility. A surge in derivatives open interest suggests new capital and leverage are entering, while on-chain data shows large holders are active but the market lacks a clear directional consensus.</p>
+                     <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-3 mt-1">&#x2197;</span>
+                            <div><span class="font-semibold">18% Monthly Increase in Open Interest:</span> New capital anticipating a significant price movement.</div>
+                        </li>
+                        <li class="flex items-start">
+                             <span class="text-blue-500 mr-3 mt-1">&#x2197;</span>
+                            <div><span class="font-semibold">5.18% Increase in Large Transactions:</span> "Whale" activity is picking up.</div>
+                        </li>
+                         <li class="flex items-start">
+                             <span class="text-gray-500 mr-3 mt-1">&#x2194;</span>
+                            <div><span class="font-semibold">Aggregate Signals Split:</span> Market is at a key inflection point, awaiting a catalyst.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="technicals" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Technical Landscape & Projections</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-4xl">AVAX's price chart shows a prolonged consolidation, forming a "coiled spring" pattern against a critical resistance zone. Technical indicators are aligning for a bullish breakout. Explore the potential outcomes by selecting a scenario below to see how it could impact the price trajectory.</p>
+            
+            <div class="bg-white rounded-lg shadow-lg p-4 md:p-8">
+                <div class="flex justify-center space-x-2 md:space-x-4 mb-6">
+                    <button id="btn-bearish" class="scenario-btn bg-red-100 text-red-800 hover:bg-red-200 font-semibold py-2 px-4 rounded-lg shadow-sm" data-scenario="bearish">Bearish Case</button>
+                    <button id="btn-base" class="scenario-btn bg-blue-100 text-blue-800 hover:bg-blue-200 font-semibold py-2 px-4 rounded-lg shadow-sm active" data-scenario="base">Base Case</button>
+                    <button id="btn-bullish" class="scenario-btn bg-green-100 text-green-800 hover:bg-green-200 font-semibold py-2 px-4 rounded-lg shadow-sm" data-scenario="bullish">Bullish Case</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="avaxPriceChart"></canvas>
+                </div>
+
+                <div id="scenario-details" class="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                    <!-- Details will be populated by JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white mt-16 border-t">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+            <p>&copy; 2025 Market Analysis. Data synthesized for illustrative purposes.</p>
+            <p class="text-sm mt-1">This is not financial advice. All investment decisions should be made with professional consultation.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartData = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                historical: [15, 20, 45, 30, 22, 18, 20, 24, null, null, null, null],
+                projections: {
+                    base: [null, null, null, null, null, null, null, 24, 35, 50, 75, 90],
+                    bullish: [null, null, null, null, null, null, null, 24, 40, 70, 110, 150],
+                    bearish: [null, null, null, null, null, null, null, 24, 22, 18, 25, 35]
+                }
+            };
+
+            const scenarioDetails = {
+                base: {
+                    title: 'Base Case Projection: $70 - $110',
+                    color: 'rgba(59, 130, 246, 1)',
+                    description: 'This scenario assumes a successful breakout above the $26 resistance, fueled by a continuing crypto bull market and sustained capital rotation into altcoins. Avalanche\'s RWA narrative continues to gain traction, leading to a powerful, fundamentally-supported rally consistent with mid-cycle targets.'
+                },
+                bullish: {
+                    title: 'Bullish Case Projection: $140 - $180',
+                    color: 'rgba(16, 185, 129, 1)',
+                    description: 'This scenario includes all elements of the base case but is amplified by a market-wide euphoric "mania" phase. Triggers could include Bitcoin surpassing $175k, a favorable AVAX ETF update, or another major enterprise Subnet launch. A retest and break of the previous all-time high becomes a distinct possibility.'
+                },
+                bearish: {
+                    title: 'Bearish Case Projection: $30 - $50',
+                    color: 'rgba(239, 68, 68, 1)',
+                    description: 'This scenario is predicated on a failure to break and hold the $26 resistance, likely triggered by a negative macroeconomic event or a major Bitcoin correction. AVAX would likely retest lower support levels, with its price for the remainder of 2025 capped by the existing range.'
+                }
+            };
+
+            const ctx = document.getElementById('avaxPriceChart').getContext('2d');
+            let priceChart;
+
+            function createChart(initialScenario) {
+                if (priceChart) {
+                    priceChart.destroy();
+                }
+                const projectionData = chartData.projections[initialScenario];
+                const details = scenarioDetails[initialScenario];
+
+                priceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [{
+                            label: 'Historical Price',
+                            data: chartData.historical,
+                            borderColor: 'rgba(107, 114, 128, 1)',
+                            backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointBackgroundColor: 'rgba(107, 114, 128, 1)',
+                        }, {
+                            label: `${details.title.split(':')[0]}`,
+                            data: projectionData,
+                            borderColor: details.color,
+                            backgroundColor: details.color.replace('1)', '0.1)'),
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointBackgroundColor: details.color,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value;
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: $${context.parsed.y.toFixed(2)}`;
+                                    }
+                                }
+                            },
+                            annotation: {
+                                annotations: {
+                                    resistance: {
+                                        type: 'box',
+                                        yMin: 25,
+                                        yMax: 26,
+                                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                        borderColor: 'rgba(239, 68, 68, 0.3)',
+                                        borderWidth: 1,
+                                        label: {
+                                            content: 'Key Resistance',
+                                            enabled: true,
+                                            position: 'start',
+                                            font: {
+                                                weight: 'bold'
+                                            }
+                                        }
+                                    },
+                                    support: {
+                                        type: 'box',
+                                        yMin: 17.7,
+                                        yMax: 23.5,
+                                        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                                        borderColor: 'rgba(16, 185, 129, 0.2)',
+                                        borderWidth: 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateScenario(scenario) {
+                const details = scenarioDetails[scenario];
+                const detailsContainer = document.getElementById('scenario-details');
+                
+                detailsContainer.innerHTML = `
+                    <h3 class="text-2xl font-bold mb-2" style="color: ${details.color};">${details.title}</h3>
+                    <p class="text-gray-600">${details.description}</p>
+                `;
+
+                createChart(scenario);
+
+                document.querySelectorAll('.scenario-btn').forEach(btn => {
+                    btn.classList.remove('active', 'bg-blue-200', 'bg-green-200', 'bg-red-200');
+                    if (btn.dataset.scenario === scenario) {
+                        btn.classList.add('active');
+                         if(scenario === 'base') btn.classList.add('bg-blue-200');
+                         if(scenario === 'bullish') btn.classList.add('bg-green-200');
+                         if(scenario === 'bearish') btn.classList.add('bg-red-200');
+                    }
+                });
+            }
+
+            document.querySelectorAll('.scenario-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    updateScenario(button.dataset.scenario);
+                });
+            });
+
+            updateScenario('base');
+
+            const tabs = ['social', 'institutional', 'onchain'];
+            tabs.forEach(tabId => {
+                document.getElementById(`tab-${tabId}`).addEventListener('click', () => {
+                    tabs.forEach(id => {
+                        document.getElementById(`content-${id}`).classList.add('hidden');
+                        document.getElementById(`tab-${id}`).classList.remove('active');
+                    });
+                    document.getElementById(`content-${tabId}`).classList.remove('hidden');
+                    document.getElementById(`tab-${tabId}`).classList.add('active');
+                });
+            });
+            
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+            
+             navLinks.forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>

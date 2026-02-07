@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethereum Market Intelligence Report 2025 | Interactive Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: A top-down, narrative-driven SPA. It starts with the main conclusion (the price target) for immediate impact. A sticky navigation bar allows users to jump to thematic sections: Market Snapshot, Sentiment, Bull Case, Risks, and Valuation. This structure guides the user from the current market state to the factors influencing the future, culminating in the detailed valuation. It's designed for logical exploration, allowing users to either follow the narrative flow or dive into specific areas of interest, which is more intuitive than mirroring the original report's linear structure. -->
+    <!-- Visualization & Content Choices: 
+        - Market Snapshot: Goal: Inform. Method: Key stats in cards and a line chart for price history. Interaction: Hover tooltips on chart. Justification: Provides a quick, clear baseline of the current market. Library: Chart.js.
+        - Sentiment Gauge: Goal: Inform. Method: Donut chart styled as a gauge. Interaction: None, static display. Justification: A visually intuitive way to represent the Fear & Greed Index score. Library: Chart.js.
+        - ETF Inflows: Goal: Show Change. Method: Vertical bar chart. Interaction: Hover tooltips. Justification: Effectively visualizes the magnitude and trend of institutional demand. Library: Chart.js.
+        - L1 Competitors: Goal: Compare. Method: Horizontal bar chart. Interaction: Hover tooltips. Justification: Allows for easy comparison of key performance metrics across different blockchains. Library: Chart.js.
+        - Analyst Forecasts: Goal: Compare. Method: Vertical bar chart with varied colors. Interaction: Hover tooltips. Justification: Clearly displays the spectrum of market expectations and identifies the consensus range. Library: Chart.js.
+        - Pectra/Risks: Goal: Organize/Inform. Method: Interactive tab/card system. Interaction: Click to reveal details. Justification: Condenses complex information into digestible, user-initiated chunks, preventing information overload. Method: Vanilla JS + Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #333;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .nav-link.active {
+            color: #4F46E5;
+            border-bottom-color: #4F46E5;
+        }
+        .pill-btn {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .pill-btn.active {
+            background-color: #4F46E5;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-gray-800">ETH Report 2025</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#snapshot" class="nav-link text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Market Snapshot</a>
+                        <a href="#sentiment" class="nav-link text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Sentiment</a>
+                        <a href="#bull-case" class="nav-link text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Bull Case</a>
+                        <a href="#risks" class="nav-link text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Risks</a>
+                        <a href="#valuation" class="nav-link text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Valuation</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <section class="text-center mb-16">
+            <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-gray-900 mb-4">Ethereum 2025 Cycle Top Projection</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-6">An interactive analysis of market sentiment, fundamental drivers, and key risks culminating in a projected cycle apex for Ethereum.</p>
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 inline-block border border-gray-200">
+                <p class="text-base font-medium text-indigo-600 mb-2">Projected Price Range</p>
+                <p class="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight">$13,500 - $17,000</p>
+            </div>
+        </section>
+
+        <div id="content-sections">
+            <section id="snapshot" class="py-12 scroll-mt-20">
+                <h3 class="text-2xl md:text-3xl font-bold text-center mb-2">Market Snapshot: Q3 2025</h3>
+                <p class="text-center text-gray-500 mb-10 max-w-2xl mx-auto">The data reveals Ethereum in a high-level consolidation phase, showing significant market maturity and liquidity as it challenges its previous all-time high.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                        <h4 class="font-semibold text-gray-500">Market Cap</h4>
+                        <p class="text-3xl font-bold text-gray-800">$550B</p>
+                        <p class="text-sm text-gray-400">~14% Market Dominance</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                        <h4 class="font-semibold text-gray-500">Price Range</h4>
+                        <p class="text-3xl font-bold text-gray-800">$4,300 - $4,800</p>
+                        <p class="text-sm text-green-500">+55% Year-over-Year</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                        <h4 class="font-semibold text-gray-500">24h Trading Volume</h4>
+                        <p class="text-3xl font-bold text-gray-800">$33B</p>
+                        <p class="text-sm text-gray-400">Deep Market Liquidity</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <h4 class="text-xl font-bold text-center mb-4">Price Action vs. All-Time High</h4>
+                    <div class="chart-container">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sentiment" class="py-12 scroll-mt-20">
+                <h3 class="text-2xl md:text-3xl font-bold text-center mb-2">Gauging Market Psychology</h3>
+                <p class="text-center text-gray-500 mb-10 max-w-2xl mx-auto">A notable divergence defines 2025 sentiment: methodical institutional buying is driving the market, while broader retail euphoria remains absent.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 text-center">
+                        <h4 class="text-xl font-bold mb-4">Crypto Fear & Greed Index</h4>
+                        <div class="relative w-48 h-48 mx-auto">
+                           <canvas id="sentimentGauge"></canvas>
+                           <div class="absolute inset-0 flex flex-col items-center justify-center">
+                               <span id="sentimentScore" class="text-4xl font-bold text-gray-800">50</span>
+                               <span id="sentimentText" class="text-lg font-medium text-gray-500">Neutral</span>
+                           </div>
+                        </div>
+                        <p class="mt-4 text-sm text-gray-500 max-w-xs mx-auto">A neutral reading, despite a 50% price surge in July, suggests the rally is not driven by retail FOMO and has room to grow.</p>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                            <h4 class="font-semibold text-lg mb-2 text-blue-600">Institutional Accumulation</h4>
+                            <p class="text-gray-600">The current rally is overwhelmingly driven by institutions, "whales," and "serious money," a stark contrast to retail-led peaks of the past.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                            <h4 class="font-semibold text-lg mb-2 text-orange-500">Subdued Retail Sentiment</h4>
+                            <p class="text-gray-600">Retail participation is reported as "low." This suggests a significant wave of capital has not yet entered the market, representing potential fuel for a future parabolic advance.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="bull-case" class="py-12 scroll-mt-20">
+                <h3 class="text-2xl md:text-3xl font-bold text-center mb-2">The Bullish Thesis: Core Drivers</h3>
+                <p class="text-center text-gray-500 mb-10 max-w-2xl mx-auto">The rally is propelled by a powerful confluence of institutional gateways, technological maturation, and a favorable macro-regulatory environment.</p>
+                <div class="text-center mb-8">
+                    <div id="bull-case-controls" class="inline-flex rounded-full bg-gray-200 p-1 space-x-1">
+                        <button data-target="bull-etf" class="pill-btn active py-2 px-6 rounded-full text-sm font-semibold bg-white text-indigo-600 shadow">Spot ETFs</button>
+                        <button data-target="bull-pectra" class="pill-btn py-2 px-6 rounded-full text-sm font-semibold text-gray-600">Pectra Upgrade</button>
+                        <button data-target="bull-macro" class="pill-btn py-2 px-6 rounded-full text-sm font-semibold text-gray-600">Macro & Regulation</button>
+                    </div>
+                </div>
+                <div id="bull-case-content">
+                    <div id="bull-etf" class="bull-case-panel">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                                <h4 class="text-xl font-bold text-center mb-4">Record-Breaking ETF Inflows (July 2025)</h4>
+                                <div class="chart-container h-64 md:h-80">
+                                    <canvas id="etfInflowChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-xl font-bold">The Institutional Floodgate</h4>
+                                <p class="text-gray-600">Spot ETFs have created a regulated gateway for institutional capital, resulting in a persistent demand shock. As ETF issuers buy ETH, available supply on exchanges has plummeted to a nine-year low, creating a powerful tailwind for price.</p>
+                                <p class="text-gray-600">July 2025 saw a total of <span class="font-bold text-gray-800">$5.4 billion</span> in inflows, demonstrating the scale of this new demand.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="bull-pectra" class="bull-case-panel hidden">
+                        <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                            <h4 class="text-xl font-bold text-center mb-6">Pectra Upgrade: A Foundational Re-Rating</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                                <div>
+                                    <h5 class="font-bold text-indigo-600">Account Abstraction</h5>
+                                    <p class="text-sm text-gray-600">Superior UX with gas sponsorship, transaction batching, and social recovery.</p>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-indigo-600">Increased Staking Balance</h5>
+                                    <p class="text-sm text-gray-600">Improves capital efficiency for large stakers, raising max balance from 32 to 2,048 ETH.</p>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-indigo-600">Blob Throughput Increase</h5>
+                                    <p class="text-sm text-gray-600">Doubles data capacity, lowering transaction costs for Layer-2s and enhancing scalability.</p>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-indigo-600">Faster Validator Deposits</h5>
+                                    <p class="text-sm text-gray-600">Reduces onboarding time from 12 hours to 13 minutes, making staking more accessible.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="bull-macro" class="bull-case-panel hidden">
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                                <h4 class="font-semibold text-lg mb-2 text-green-600">Monetary Policy Easing</h4>
+                                <p class="text-gray-600">A dovish pivot from the U.S. Federal Reserve, with expected rate cuts, increases investor appetite for risk-on assets like crypto.</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                                <h4 class="font-semibold text-lg mb-2 text-purple-600">Landmark Regulatory Clarity</h4>
+                                <p class="text-gray-600">The GENIUS Act in the U.S. and MiCA regulations in the E.U. have significantly de-risked the asset class, paving the way for deeper institutional adoption.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="risks" class="py-12 scroll-mt-20">
+                <h3 class="text-2xl md:text-3xl font-bold text-center mb-2">Risks & Competitive Pressures</h3>
+                <p class="text-center text-gray-500 mb-10 max-w-2xl mx-auto">While the outlook is bullish, a balanced view requires acknowledging significant competition, market structure risks, and security vulnerabilities.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <h4 class="text-xl font-bold text-center mb-4">Layer-1 Competitor Landscape (TPS)</h4>
+                        <div class="chart-container h-80 md:h-96">
+                            <canvas id="competitorChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                         <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                            <h4 class="font-semibold text-lg mb-2 text-red-600">Market Overheating & Leverage</h4>
+                            <p class="text-gray-600">Open interest in derivatives is at an all-time high, signaling extreme leverage. A sharp price correction could trigger cascading liquidations.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                            <h4 class="font-semibold text-lg mb-2 text-red-600">Security & Smart Contract Risk</h4>
+                            <p class="text-gray-600">Security remains a major concern, with <span class="font-bold">$1.59 billion</span> lost to hacks on Ethereum in H1 2025 alone, primarily due to operational security failures.</p>
+                        </div>
+                         <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                            <h4 class="font-semibold text-lg mb-2 text-red-600">Scalability Headwinds</h4>
+                            <p class="text-gray-600">While Pectra helped, the rapid growth of L2s could saturate the new data capacity within a year, potentially causing L2 fees to rise over time.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="valuation" class="py-12 scroll-mt-20">
+                <h3 class="text-2xl md:text-3xl font-bold text-center mb-2">Valuation & Cycle Top Determination</h3>
+                <p class="text-center text-gray-500 mb-10 max-w-2xl mx-auto">Triangulating between fundamental models, analyst forecasts, and cyclical dynamics to project a 2025 cycle top price range.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                     <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                            <h4 class="font-semibold text-lg mb-2">Fundamental Anchor</h4>
+                            <p class="text-gray-600">VanEck's DCF model provides a long-term target of <span class="font-bold">$22,000 per ETH by 2030</span>, establishing that a five-figure price is fundamentally justifiable.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                            <h4 class="font-semibold text-lg mb-2">Demand Shock Multiplier</h4>
+                            <p class="text-gray-600">Unprecedented institutional ETF inflows justify targeting the higher end of analyst forecasts, as this demand force was absent in prior cycles.</p>
+                        </div>
+                         <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+                            <h4 class="font-semibold text-lg mb-2">Sentiment & Momentum</h4>
+                            <p class="text-gray-600">The lack of retail euphoria suggests the cycle's final "blow-off top" phase has not yet occurred, which could propel the price to the hyper-bullish forecast levels.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <h4 class="text-xl font-bold text-center mb-4">2025 Analyst Price Forecasts</h4>
+                        <div class="chart-container h-96 md:h-[450px]">
+                            <canvas id="forecastChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500">
+            <p>&copy; 2025 Ethereum Market Intelligence Analysis. For informational purposes only.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartLabelColor = '#6B7280';
+            const gridColor = '#E5E7EB';
+            const primaryColor = '#4F46E5';
+
+            const formatNumber = (num) => {
+                if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'B';
+                if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+                if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+                return num;
+            };
+            
+            const wrapText = (text, maxLen) => {
+                if (text.length <= maxLen) return text;
+                const words = text.split(' ');
+                const lines = [];
+                let currentLine = '';
+                words.forEach(word => {
+                    if ((currentLine + ' ' + word).length > maxLen) {
+                        lines.push(currentLine.trim());
+                        currentLine = word;
+                    } else {
+                        currentLine += ' ' + word;
+                    }
+                });
+                lines.push(currentLine.trim());
+                return lines;
+            };
+
+            const priceChartCtx = document.getElementById('priceChart')?.getContext('2d');
+            if (priceChartCtx) {
+                new Chart(priceChartCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+                        datasets: [{
+                            label: 'ETH Price 2025',
+                            data: [2800, 3100, 3500, 3300, 3800, 4100, 4300, 4600],
+                            borderColor: primaryColor,
+                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                        }, {
+                            label: 'Previous ATH (Nov 2021)',
+                            data: Array(8).fill(4891),
+                            borderColor: '#F59E0B',
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: { color: chartLabelColor, callback: value => '$' + value },
+                                grid: { color: gridColor }
+                            },
+                            x: {
+                                ticks: { color: chartLabelColor },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: chartLabelColor } },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => `${context.dataset.label}: $${context.parsed.y.toFixed(2)}`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const sentimentGaugeCtx = document.getElementById('sentimentGauge')?.getContext('2d');
+            if (sentimentGaugeCtx) {
+                const sentimentScore = 50;
+                new Chart(sentimentGaugeCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Fear/Greed', 'Remaining'],
+                        datasets: [{
+                            data: [sentimentScore, 100 - sentimentScore],
+                            backgroundColor: ['#F59E0B', '#E5E7EB'],
+                            borderColor: ['#F59E0B', '#E5E7EB'],
+                            circumference: 180,
+                            rotation: 270,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '80%',
+                        plugins: {
+                            tooltip: { enabled: false },
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+            
+            const etfInflowChartCtx = document.getElementById('etfInflowChart')?.getContext('2d');
+            if (etfInflowChartCtx) {
+                new Chart(etfInflowChartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [{
+                            label: 'Weekly Inflow ($B)',
+                            data: [2.18, 0, 2.9, 0.32],
+                            backgroundColor: 'rgba(79, 70, 229, 0.6)',
+                            borderColor: primaryColor,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: chartLabelColor, callback: value => `$${value}B` },
+                                grid: { color: gridColor }
+                            },
+                            x: {
+                                ticks: { color: chartLabelColor },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            title: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => `Inflow: $${context.parsed.y.toFixed(2)} Billion`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            const competitorChartCtx = document.getElementById('competitorChart')?.getContext('2d');
+            if (competitorChartCtx) {
+                new Chart(competitorChartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Solana', 'Avalanche', 'Cardano', 'Polkadot', 'Ethereum (L1)'],
+                        datasets: [{
+                            label: 'Transactions Per Second (TPS)',
+                            data: [2600, 400, 1000, 1000, 22.5],
+                            backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                            borderColor: '#059669',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { color: chartLabelColor, callback: value => formatNumber(value) },
+                                grid: { color: gridColor }
+                            },
+                            y: {
+                                ticks: { color: chartLabelColor },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => `TPS: ${context.parsed.x.toLocaleString()}`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const forecastChartCtx = document.getElementById('forecastChart')?.getContext('2d');
+            if(forecastChartCtx) {
+                const forecastData = [
+                    { firm: 'Jeremy Britton', target: 5500 },
+                    { firm: 'Technical Analysis', target: 6150 },
+                    { firm: 'Fred Schebesta', target: 7100 },
+                    { firm: 'Unnamed Analysts', target: 9000 },
+                    { firm: 'EMJ Capital', target: 12500 },
+                    { firm: 'Fundstrat', target: 12500 },
+                    { firm: 'Colin Talks Crypto', target: 17500 },
+                ];
+
+                new Chart(forecastChartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: forecastData.map(d => wrapText(d.firm, 16)),
+                        datasets: [{
+                            label: 'Price Target ($)',
+                            data: forecastData.map(d => d.target),
+                            backgroundColor: forecastData.map(d => {
+                                if (d.target < 9000) return 'rgba(245, 158, 11, 0.6)';
+                                if (d.target < 15000) return 'rgba(79, 70, 229, 0.6)';
+                                return 'rgba(22, 163, 74, 0.6)';
+                            }),
+                            borderColor: forecastData.map(d => {
+                                if (d.target < 9000) return '#D97706';
+                                if (d.target < 15000) return '#4338CA';
+                                return '#15803D';
+                            }),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: chartLabelColor, callback: value => '$' + formatNumber(value) },
+                                grid: { color: gridColor }
+                            },
+                            x: {
+                                ticks: { color: chartLabelColor, font: { size: 10 } },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => `Target: $${context.parsed.y.toLocaleString()}`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            const bullCaseControls = document.getElementById('bull-case-controls');
+            const bullCasePanels = document.querySelectorAll('.bull-case-panel');
+            bullCaseControls?.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    const targetId = e.target.dataset.target;
+                    
+                    bullCaseControls.querySelectorAll('button').forEach(btn => {
+                        btn.classList.remove('active', 'bg-white', 'text-indigo-600', 'shadow');
+                        btn.classList.add('text-gray-600');
+                    });
+                    e.target.classList.add('active', 'bg-white', 'text-indigo-600', 'shadow');
+                    e.target.classList.remove('text-gray-600');
+
+                    bullCasePanels.forEach(panel => {
+                        if (panel.id === targetId) {
+                            panel.classList.remove('hidden');
+                        } else {
+                            panel.classList.add('hidden');
+                        }
+                    });
+                }
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('#content-sections section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+            sections.forEach(section => observer.observe(section));
+        });
+    </script>
+</body>
+</html>
