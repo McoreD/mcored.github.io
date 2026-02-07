@@ -70,15 +70,31 @@ async function fetchNews() {
 
         if (data.hits && data.hits.length > 0) {
             let newsHTML = '';
-            data.hits.forEach(story => {
+            // Limit to 6 items for layout balance
+            const items = data.hits.slice(0, 6);
+            
+            items.forEach(story => {
+                if (!story.title) return; // Skip if no title
+                
                 const date = new Date(story.created_at).toLocaleDateString();
-                // Filter out items without URLs if possible, or link to HN discussion
+                // Prioritize external URL, fallback to HN discussion if necessary
+                const isExternal = !!story.url;
                 const link = story.url || `https://news.ycombinator.com/item?id=${story.objectID}`;
                 
+                // Extract domain for display if external
+                let domain = '';
+                if (isExternal) {
+                    try {
+                        domain = new URL(story.url).hostname.replace('www.', '');
+                    } catch (e) {}
+                } else {
+                    domain = 'news.ycombinator.com';
+                }
+
                 newsHTML += `
                     <div class="news-item">
                         <div class="news-meta">
-                            <span class="news-source">Hacker News</span>
+                            <span class="news-source">${domain}</span>
                             <span class="news-date">${date}</span>
                         </div>
                         <a href="${link}" target="_blank" class="news-title">${story.title}</a>
