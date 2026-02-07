@@ -22,6 +22,9 @@ async function fetchResearchFiles() {
         // Filter for HTML files, excluding index.html
         const htmlFiles = data.filter(file => file.name.endsWith('.html') && file.name.toLowerCase() !== 'index.html');
 
+        // Sort files by name descending (newest items first assuming numbering scheme)
+        htmlFiles.sort((a, b) => b.name.localeCompare(a.name));
+
         if (htmlFiles.length === 0) {
             fileList.innerHTML = '<div class="info">No archives found in current sector.</div>';
             return;
