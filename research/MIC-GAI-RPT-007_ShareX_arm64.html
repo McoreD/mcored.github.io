@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareX ARM64 Enhancement Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Slate & Teal -->
+    <!-- Application Structure Plan: The application is designed as an interactive dashboard with four main sections: Overview, Project Stages, Tech Stack, and Roadmap. This structure was chosen to cater to different user needs. An executive might only view the Overview and Roadmap for a high-level summary, while a developer would dive deep into the Project Stages and Tech Stack. This thematic separation is more user-friendly than a linear document. The core interaction involves selecting a stage to dynamically display its detailed tasks and criteria, with interactive checklists to simulate progress and enhance engagement. This transforms a static document into a dynamic project exploration tool. -->
+    <!-- Visualization & Content Choices: 
+        - Project Focus (Overview): Goal: Inform. Method: A donut chart from Chart.js visualizes the thematic breakdown of the project stages (e.g., setup, implementation, optimization). Interaction: Tooltips on hover. Justification: Provides a quick, scannable summary of where the effort is concentrated.
+        - Project Stages (Core): Goal: Organize/Explore. Method: Interactive vertical tabs (HTML/JS) reveal detailed content for each stage. Tasks are presented as interactive checklists. Interaction: Clicking tabs updates content; checking tasks updates a progress bar. Justification: This is the most intuitive way to navigate a multi-part process without overwhelming the user.
+        - Project Roadmap (Timeline): Goal: Show Change/Sequence. Method: A horizontal timeline built with structured HTML/CSS (divs and borders). Interaction: Hover effects on timeline nodes. Justification: Visually communicates the project's progression in a clear, linear fashion.
+        - Tech Stack (Info): Goal: Inform. Method: A grid of info cards (HTML/Tailwind). Interaction: Subtle hover effects. Justification: A clean and organized way to present key technologies.
+        - Icons: Unicode characters (e.g., ✓, 🎯, ⚙️) are used for lightweight, fast-loading visual cues.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .nav-link.active {
+            color: #0d9488;
+            border-bottom-color: #0d9488;
+        }
+        .stage-selector {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .stage-selector.active {
+            background-color: #ccfbf1;
+            color: #115e59;
+            border-left-color: #0d9488;
+        }
+        .task-checkbox {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #94a3b8;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease-in-out;
+            flex-shrink: 0;
+        }
+        .task-checkbox.checked {
+            background-color: #0d9488;
+            border-color: #0d9488;
+        }
+        .task-checkbox.checked span {
+            display: block;
+            color: white;
+        }
+        .progress-bar-bg {
+            background-color: #e2e8f0;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            background-color: #14b8a6;
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease-in-out;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2.5rem;
+            padding-left: 2.5rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.25rem;
+            bottom: 0;
+            width: 2px;
+            background-color: #cbd5e1;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -0.625rem;
+            top: 0.25rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 9999px;
+            background-color: white;
+            border: 3px solid #0d9488;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="min-h-screen">
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-teal-600 p-2 rounded-lg">
+                            <span class="text-white font-bold text-xl">S</span>
+                        </div>
+                        <h1 class="text-xl font-bold text-slate-800">ShareX ARM64 Enhancement Plan</h1>
+                    </div>
+                    <nav class="hidden md:flex space-x-8">
+                        <a data-target="overview" class="nav-link text-gray-500 hover:text-teal-600 border-b-2 border-transparent pb-1">Overview</a>
+                        <a data-target="stages" class="nav-link text-gray-500 hover:text-teal-600 border-b-2 border-transparent pb-1">Project Stages</a>
+                        <a data-target="tech" class="nav-link text-gray-500 hover:text-teal-600 border-b-2 border-transparent pb-1">Tech Stack</a>
+                        <a data-target="roadmap" class="nav-link text-gray-500 hover:text-teal-600 border-b-2 border-transparent pb-1">Roadmap</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            
+            <section id="overview" class="page-section">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Project Dashboard</h2>
+                    <p class="mt-3 max-w-2xl mx-auto text-lg text-slate-500">A high-level overview of the project to add native ARM64 support to ShareX, focusing on performance, stability, and future-proofing the application.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center">
+                        <h3 class="text-lg font-semibold text-slate-800">Project Goal</h3>
+                        <p class="mt-2 text-slate-600">Achieve full, native ARM64 compatibility for ShareX, enhancing performance through hardware acceleration and ensuring long-term stability.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center">
+                        <h3 class="text-lg font-semibold text-slate-800">Total Stages</h3>
+                        <p class="text-4xl font-bold text-teal-600 mt-2">5</p>
+                        <p class="text-slate-500">From analysis to optimization.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center">
+                        <h3 class="text-lg font-semibold text-slate-800">Key Technologies</h3>
+                        <p class="mt-2 text-slate-600">ARM64, FFmpeg, .NET, NEON Intrinsics, Windows Media Foundation, and Visual Studio.</p>
+                    </div>
+                </div>
+
+                <div class="mt-12 bg-white rounded-xl shadow-md p-6 md:p-8">
+                    <h3 class="text-xl font-bold text-center text-slate-800">Project Effort Distribution</h3>
+                    <p class="text-center text-slate-500 mt-1 mb-6">This chart illustrates the estimated focus for each phase of the project, from initial setup to final performance tuning.</p>
+                    <div class="chart-container">
+                        <canvas id="effortChart"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="stages" class="page-section hidden">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Interactive Project Stages</h2>
+                    <p class="mt-3 max-w-2xl mx-auto text-lg text-slate-500">Explore each stage of the project in detail. Select a stage to view its purpose, tasks, and acceptance criteria. You can check off tasks to see the progress bar update.</p>
+                </div>
+                <div class="md:grid md:grid-cols-12 gap-8">
+                    <div id="stage-nav" class="md:col-span-4 lg:col-span-3">
+                    </div>
+                    <div id="stage-content" class="md:col-span-8 lg:col-span-9 mt-8 md:mt-0">
+                    </div>
+                </div>
+            </section>
+            
+            <section id="tech" class="page-section hidden">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Core Technology Stack</h2>
+                    <p class="mt-3 max-w-2xl mx-auto text-lg text-slate-500">The key technologies and frameworks that will be used to analyze, build, and optimize ShareX for the ARM64 architecture.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-lg font-semibold text-slate-800">⚙️ ARM64 Architecture</h3>
+                        <p class="mt-2 text-slate-600">The target platform. Optimizations will focus on its specific instruction set and hardware features.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-lg font-semibold text-slate-800">⚙️ .NET & Visual Studio</h3>
+                        <p class="mt-2 text-slate-600">The core framework and IDE for development, debugging, and building the ARM64 version of the application.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-lg font-semibold text-slate-800">⚙️ FFmpeg</h3>
+                        <p class="mt-2 text-slate-600">A critical dependency for video and GIF recording. It must be recompiled for native ARM64 support.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-lg font-semibold text-slate-800">⚙️ ARM NEON Intrinsics</h3>
+                        <p class="mt-2 text-slate-600">Advanced SIMD (Single Instruction, Multiple Data) instruction set used for accelerating performance-critical tasks like image processing.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-lg font-semibold text-slate-800">⚙️ Windows Media Foundation</h3>
+                        <p class="mt-2 text-slate-600">Used for hardware-accelerated video encoding on the GPU, drastically reducing CPU load during screen recording.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-lg font-semibold text-slate-800">⚙️ Windows Graphics Capture</h3>
+                        <p class="mt-2 text-slate-600">A modern, efficient API for screen capture that can offer better performance over traditional GDI methods.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="roadmap" class="page-section hidden">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Project Roadmap</h2>
+                    <p class="mt-3 max-w-2xl mx-auto text-lg text-slate-500">A visual timeline of the project, outlining the sequential flow from the initial analysis phase to the final implementation of performance optimizations.</p>
+                </div>
+                <div class="max-w-3xl mx-auto">
+                    <div class="relative">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h3 class="text-lg font-semibold text-teal-700">Stage 1: Foundational Analysis</h3>
+                            <p class="mt-1 text-slate-600">Analyze the codebase, identify dependencies, and configure the project for an initial ARM64 build attempt.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h3 class="text-lg font-semibold text-teal-700">Stage 2: Dependency Resolution</h3>
+                            <p class="mt-1 text-slate-600">Update, replace, or recompile all third-party libraries (especially FFmpeg) to ensure full ARM64 compatibility.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h3 class="text-lg font-semibold text-teal-700">Stage 3: Stable Native Build</h3>
+                            <p class="mt-1 text-slate-600">Resolve all compilation errors and achieve the first stable, runnable, and feature-complete native ARM64 version of ShareX.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h3 class="text-lg font-semibold text-teal-700">Stage 4: Performance Profiling</h3>
+                            <p class="mt-1 text-slate-600">Identify performance bottlenecks and research opportunities for hardware acceleration in graphics and video processing.</p>
+                        </div>
+                        <div class="timeline-item" style="padding-bottom: 0;">
+                            <div class="timeline-dot"></div>
+                            <h3 class="text-lg font-semibold text-teal-700">Stage 5: Hardware Acceleration</h3>
+                            <p class="mt-1 text-slate-600">Implement GPU-accelerated video encoding and CPU optimizations using ARM NEON intrinsics to maximize performance.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const projectData = [
+        {
+            title: "Stage 1: Foundational Analysis",
+            purpose: "To establish a baseline for the project by analyzing the existing source code, identifying immediate ARM64 compatibility challenges, and configuring the Visual Studio project to produce a preliminary ARM64 build. This stage focuses on setup and assessment rather than code modification.",
+            tasks: [
+                "Configure development and testing environments for ARM64.",
+                "Perform a static analysis of the codebase to identify platform-specific dependencies.",
+                "Review all third-party dependencies and document their ARM64 support status.",
+                "Add a new solution configuration for ARM64 in Visual Studio.",
+                "Attempt an initial compilation and document all errors and warnings."
+            ],
+            criteria: [
+                "A development and testing environment for ARM64 is fully configured.",
+                "A detailed report is created, listing all dependencies and their ARM64 compatibility status.",
+                "The ShareX Visual Studio solution is successfully configured with an ARM64 build target.",
+                "A comprehensive log of initial compilation errors and warnings is produced."
+            ]
+        },
+        {
+            title: "Stage 2: Dependency Resolution",
+            purpose: "To address the dependency issues identified in Stage 1 by updating, replacing, or recompiling third-party libraries to ensure they are fully compatible with ARM64. This is a critical step to enable a successful native ARM64 build.",
+            tasks: [
+                "Update NuGet packages to versions with ARM64 support.",
+                "Source or compile native ARM64 versions of libraries, especially FFmpeg.",
+                "Replace existing x86/x64 binaries with their ARM64 counterparts.",
+                "Adjust build scripts to correctly include the new ARM64 binaries.",
+                "Review and correct all P/Invoke signatures for ARM64 compatibility."
+            ],
+            criteria: [
+                "All manageable NuGet packages are updated to versions with ARM64 support.",
+                "ARM64-compatible versions of all native dependencies are integrated into the project.",
+                "The project can successfully locate and reference the ARM64 dependencies during the build process.",
+                "P/Invoke calls are validated for ARM64 compatibility."
+            ]
+        },
+        {
+            title: "Stage 3: Stable Native Build",
+            purpose: "To resolve all compilation errors and warnings from the previous stages and produce the first runnable, natively compiled ARM64 version of ShareX. The focus is on functionality and stability, not performance optimization.",
+            tasks: [
+                "Systematically resolve all compilation errors using conditional compilation where needed.",
+                "Deploy the first successful ARM64 build to the test environment.",
+                "Perform a full regression test of all core features (capture, editing, recording, etc.).",
+                "Debug and fix any runtime exceptions, crashes, or incorrect behavior.",
+                "Ensure the application installer can correctly package and deploy the ARM64 version."
+            ],
+            criteria: [
+                "The ShareX solution compiles successfully for the ARM64 target with zero errors.",
+                "The compiled ShareX.exe runs natively on an ARM64 Windows environment.",
+                "All core features of ShareX are functional and stable on ARM64.",
+                "The build and installation process for the ARM64 version is repeatable and reliable."
+            ]
+        },
+        {
+            title: "Stage 4: Profiling & Analysis",
+            purpose: "To identify performance bottlenecks in the ARM64 version of ShareX and research opportunities for optimization using ARM64-specific hardware acceleration features, particularly for graphics and video processing.",
+            tasks: [
+                "Profile resource-intensive tasks like video recording and image editing.",
+                "Identify specific methods and code paths with high CPU usage.",
+                "Research Windows on ARM graphics and media APIs (Direct3D, WMF, DXVA).",
+                "Investigate the use of ARM NEON intrinsics for C#/.NET bottlenecks.",
+                "Analyze screen capture methods for potential modernization."
+            ],
+            criteria: [
+                "A detailed performance report highlighting key bottlenecks is created.",
+                "A feasibility document outlines specific opportunities for hardware acceleration.",
+                "The document details which code to optimize, which technologies to use, and potential performance gains."
+            ]
+        },
+        {
+            title: "Stage 5: Hardware Acceleration",
+            purpose: "To implement the performance optimizations identified in Stage 4 by refactoring critical code paths to leverage ARM64 hardware acceleration for graphics and computation.",
+            tasks: [
+                "Integrate GPU-accelerated video encoding using Windows Media Foundation.",
+                "Implement fallback to software encoder if hardware acceleration fails.",
+                "Create a native C++ DLL using ARM NEON intrinsics for an image processing function.",
+                "Call the optimized native function from the C# codebase via P/Invoke.",
+                "(Optional) Implement a new capture path using the Windows Graphics Capture API."
+            ],
+            criteria: [
+                "Screen recording on ARM64 shows a significant reduction in CPU usage.",
+                "The NEON-optimized function demonstrates a clear performance improvement.",
+                "The application remains stable after implementing accelerated features.",
+                "Performance gains are benchmarked and documented."
+            ]
+        }
+    ];
+
+    const stageNavContainer = document.getElementById('stage-nav');
+    const stageContentContainer = document.getElementById('stage-content');
+    
+    function renderStageContent(index) {
+        const stage = projectData[index];
+        if (!stage) return;
+        
+        const tasksHtml = stage.tasks.map((task, i) => `
+            <div class="flex items-start space-x-3 py-2">
+                <div class="task-checkbox mt-1" data-stage="${index}" data-task="${i}">
+                    <span class="hidden text-sm">✓</span>
+                </div>
+                <p class="text-slate-600">${task}</p>
+            </div>
+        `).join('');
+
+        const criteriaHtml = stage.criteria.map(criterion => `
+            <li class="flex items-start space-x-3">
+                <span class="text-teal-500 font-bold mt-1">🎯</span>
+                <p class="text-slate-600">${criterion}</p>
+            </li>
+        `).join('');
+
+        stageContentContainer.innerHTML = `
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-md">
+                <h3 class="text-2xl font-bold text-slate-800">${stage.title}</h3>
+                <p class="mt-3 text-slate-600">${stage.purpose}</p>
+                
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold text-slate-700">Tasks</h4>
+                    <div class="mt-2 text-sm">${tasksHtml}</div>
+                </div>
+
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold text-slate-700">Progress</h4>
+                     <div class="progress-bar-bg h-3 w-full mt-2">
+                        <div id="progress-bar-${index}" class="progress-bar-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div class="mt-8 border-t border-slate-200 pt-6">
+                    <h4 class="text-lg font-semibold text-slate-700">Acceptance Criteria</h4>
+                    <ul class="mt-3 space-y-2">${criteriaHtml}</ul>
+                </div>
+            </div>
+        `;
+        updateProgress(index);
+        addCheckboxListeners();
+    }
+    
+    let taskStates = projectData.map(stage => stage.tasks.map(() => false));
+
+    function updateProgress(stageIndex) {
+        const tasks = taskStates[stageIndex];
+        const completedTasks = tasks.filter(Boolean).length;
+        const totalTasks = tasks.length;
+        const percentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+        const progressBar = document.getElementById(`progress-bar-${stageIndex}`);
+        if(progressBar) {
+            progressBar.style.width = `${percentage}%`;
+        }
+    }
+    
+    function addCheckboxListeners() {
+        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', () => {
+                const stageIndex = parseInt(checkbox.dataset.stage);
+                const taskIndex = parseInt(checkbox.dataset.task);
+                
+                taskStates[stageIndex][taskIndex] = !taskStates[stageIndex][taskIndex];
+                checkbox.classList.toggle('checked');
+                
+                updateProgress(stageIndex);
+            });
+        });
+    }
+
+    function initStages() {
+        const navHtml = projectData.map((stage, index) => `
+            <div class="stage-selector border-l-4 border-transparent p-4 hover:bg-teal-50" data-index="${index}">
+                <h4 class="font-semibold text-slate-700">${stage.title}</h4>
+            </div>
+        `).join('');
+        stageNavContainer.innerHTML = navHtml;
+
+        const stageSelectors = document.querySelectorAll('.stage-selector');
+        stageSelectors.forEach(selector => {
+            selector.addEventListener('click', () => {
+                stageSelectors.forEach(s => s.classList.remove('active'));
+                selector.classList.add('active');
+                renderStageContent(parseInt(selector.dataset.index));
+            });
+        });
+
+        if (stageSelectors.length > 0) {
+            stageSelectors[0].classList.add('active');
+            renderStageContent(0);
+        }
+    }
+    
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.page-section');
+    
+    function showSection(targetId) {
+        sections.forEach(section => {
+            section.classList.toggle('hidden', section.id !== targetId);
+        });
+        navLinks.forEach(link => {
+            link.classList.toggle('active', link.dataset.target === targetId);
+        });
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection(link.dataset.target);
+        });
+    });
+    
+    showSection('overview');
+    initStages();
+    
+    const ctx = document.getElementById('effortChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Analysis & Setup', 'Dependency Mgmt', 'Core Build', 'Profiling', 'Optimization'],
+            datasets: [{
+                label: 'Project Effort',
+                data: [15, 20, 30, 15, 20],
+                backgroundColor: [
+                    '#5eead4',
+                    '#2dd4bf',
+                    '#0d9488',
+                    '#115e59',
+                    '#0f766e'
+                ],
+                borderColor: '#f8fafc',
+                borderWidth: 4,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            family: 'Inter'
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed !== null) {
+                                label += context.parsed + '%';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+});
+</script>
+</body>
+</html>

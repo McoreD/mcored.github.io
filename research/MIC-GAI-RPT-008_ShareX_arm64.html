@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareX ARM64 Optimization Project Scope</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f5f5f4; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d6d3d1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a29e; 
+        }
+
+        /* Chart Container Strategy */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%; /* Parent controls width */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .stage-card {
+            transition: all 0.3s ease;
+        }
+        .stage-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .active-stage {
+            border-left: 4px solid #0d9488; /* teal-600 */
+            background-color: #f0fdfa; /* teal-50 */
+        }
+    </style>
+    <!-- Chosen Palette: Warm Neutrals (Stone) with Teal Accents. 
+         Reason: Creates a professional, calm, engineering-focused aesthetic suitable for technical documentation. -->
+    
+    <!-- Application Structure Plan: 
+         1. Dashboard/Executive Summary: Immediate high-level context, goals, and complexity metrics.
+         2. Interactive Roadmap (The Core): A master-detail view allowing users to step through the Scope of Works stages sequentially. 
+            This breaks down the complex "Multi-stage scope" into digestible chunks.
+         3. Technology Analysis: A section dedicated to the specific tech research (SkiaSharp, FFmpeg, etc.) required by the prompt.
+         4. Impact Analysis: Visualizing the expected performance gains.
+         User Flow: User reads summary -> Clicks through roadmap stages to understand tasks -> Reviews tech stack justifications.
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. Roadmap Progress (Doughnut): Shows % of total complexity addressed. Goal: Inform status.
+         2. Complexity by Stage (Bar): Goal: Compare effort required per stage.
+         3. Tech Stack Distribution (Pie): Goal: Organize the types of changes (Code vs Libs vs Native).
+         4. Performance Projection (Line): Goal: Inform potential gains of Native ARM64 vs Emulated x64.
+         All graphics are Canvas-based (Chart.js). No SVG/Mermaid. 
+    -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans leading-relaxed selection:bg-teal-100 selection:text-teal-900">
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-3">
+                        <span class="text-teal-600 text-2xl"><i class="fa-solid fa-layer-group"></i></span>
+                        <span class="font-bold text-xl tracking-tight text-stone-900">ShareX ARM64 Scope</span>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <button onclick="scrollToSection('dashboard')" class="border-transparent text-stone-500 hover:border-teal-500 hover:text-stone-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Dashboard</button>
+                    <button onclick="scrollToSection('roadmap')" class="border-transparent text-stone-500 hover:border-teal-500 hover:text-stone-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Scope of Works</button>
+                    <button onclick="scrollToSection('technology')" class="border-transparent text-stone-500 hover:border-teal-500 hover:text-stone-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Tech Research</button>
+                </div>
+                <!-- Mobile menu button placeholder -->
+                 <div class="flex items-center sm:hidden">
+                    <button class="text-stone-500 hover:text-stone-700 p-2">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- Header / Introduction -->
+        <section id="dashboard" class="text-center max-w-3xl mx-auto mb-12">
+            <h1 class="text-4xl font-extrabold text-stone-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
+                ARM64 Optimization Project
+            </h1>
+            <p class="mt-5 text-xl text-stone-500">
+                A multi-stage technical roadmap to enhance ShareX for native ARM64 architecture, focusing on hardware acceleration, image processing, and dependency management.
+            </p>
+        </section>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="bg-white overflow-hidden shadow rounded-lg border border-stone-100 p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-teal-100 rounded-md p-3">
+                        <i class="fa-solid fa-list-check text-teal-600 text-xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dt class="text-sm font-medium text-stone-500 truncate">Total Stages</dt>
+                        <dd class="text-3xl font-semibold text-stone-900">5</dd>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white overflow-hidden shadow rounded-lg border border-stone-100 p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-orange-100 rounded-md p-3">
+                        <i class="fa-solid fa-microchip text-orange-600 text-xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dt class="text-sm font-medium text-stone-500 truncate">Target Arch</dt>
+                        <dd class="text-xl font-semibold text-stone-900">Native ARM64</dd>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white overflow-hidden shadow rounded-lg border border-stone-100 p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                        <i class="fa-solid fa-bolt text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dt class="text-sm font-medium text-stone-500 truncate">Est. Perf Gain</dt>
+                        <dd class="text-3xl font-semibold text-stone-900">~2.5x</dd>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white overflow-hidden shadow rounded-lg border border-stone-100 p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                        <i class="fa-solid fa-code-branch text-purple-600 text-xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dt class="text-sm font-medium text-stone-500 truncate">Core Tech</dt>
+                        <dd class="text-xl font-semibold text-stone-900">.NET 8 / Skia</dd>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Analytics Section -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white shadow rounded-lg p-6 border border-stone-200">
+                <h3 class="text-lg leading-6 font-medium text-stone-900 mb-4">Implementation Complexity by Stage</h3>
+                <p class="text-sm text-stone-500 mb-4">Estimated development effort and risk associated with each project stage. Higher bars indicate requiring deeper refactoring or external dependency management.</p>
+                <div class="chart-container">
+                    <canvas id="complexityChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-white shadow rounded-lg p-6 border border-stone-200">
+                <h3 class="text-lg leading-6 font-medium text-stone-900 mb-4">Performance Impact Projection</h3>
+                <p class="text-sm text-stone-500 mb-4">Comparing current Emulated x64 performance against target Native ARM64 metrics for key tasks (Capture, Encode, Edit).</p>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Scope of Works -->
+        <section id="roadmap" class="space-y-6">
+            <div class="border-b border-stone-200 pb-5">
+                <h2 class="text-3xl font-bold leading-6 text-stone-900">Scope of Works: Execution Roadmap</h2>
+                <p class="mt-2 max-w-4xl text-stone-500">
+                    This interactive section details the step-by-step plan to migrate ShareX to ARM64. 
+                    <span class="font-semibold text-teal-600">Select a stage on the left</span> to view the detailed requirements, pre-flight checks, and technical instructions.
+                    Stages are ordered from lowest to highest complexity.
+                </p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-8 min-h-[600px]">
+                <!-- Stage Selector (Left Column) -->
+                <div class="lg:w-1/3 space-y-3" id="stageList">
+                    <!-- Javascript will populate this -->
+                </div>
+
+                <!-- Stage Details (Right Column) -->
+                <div class="lg:w-2/3 bg-white shadow-lg rounded-xl border border-stone-200 p-8 relative overflow-hidden">
+                    <div id="stageContent" class="transition-opacity duration-300">
+                        <!-- Content injected via JS -->
+                        <div class="flex flex-col items-center justify-center h-full text-stone-400">
+                            <i class="fa-solid fa-arrow-left text-4xl mb-4"></i>
+                            <p class="text-lg">Select a stage to view details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technology Research Section -->
+        <section id="technology" class="pt-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-stone-900">Technology Research & Justification</h2>
+                <p class="mt-2 text-stone-500">Analysis of hardware acceleration and library choices for the ARM64 ecosystem.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Tech Card 1 -->
+                <div class="bg-white rounded-lg shadow border border-stone-200 p-6">
+                    <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center mb-4 text-indigo-600">
+                        <i class="fa-solid fa-paintbrush text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-stone-900 mb-2">SkiaSharp vs. System.Drawing</h3>
+                    <p class="text-stone-600 text-sm mb-4">
+                        Legacy <code>System.Drawing</code> relies on GDI+, which performs poorly on non-x86 architectures. 
+                    </p>
+                    <div class="bg-stone-50 p-3 rounded text-xs text-stone-700 space-y-2">
+                        <p><i class="fa-solid fa-check text-green-500 mr-2"></i><strong>SkiaSharp:</strong> Hardware accelerated via GPU (OpenGL/Vulkan/Metal). Native ARM64 bindings available.</p>
+                        <p><i class="fa-solid fa-xmark text-red-500 mr-2"></i><strong>GDI+:</strong> CPU-bound software rendering on ARM64.</p>
+                    </div>
+                </div>
+
+                <!-- Tech Card 2 -->
+                <div class="bg-white rounded-lg shadow border border-stone-200 p-6">
+                    <div class="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center mb-4 text-emerald-600">
+                        <i class="fa-solid fa-video text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-stone-900 mb-2">Video Encoding (FFmpeg)</h3>
+                    <p class="text-stone-600 text-sm mb-4">
+                        Screen recording requires efficient encoding to prevent CPU throttling on mobile chips.
+                    </p>
+                    <div class="bg-stone-50 p-3 rounded text-xs text-stone-700 space-y-2">
+                        <p><i class="fa-solid fa-check text-green-500 mr-2"></i><strong>Native FFmpeg:</strong> Requires compiling generic builds for <code>aarch64</code>.</p>
+                        <p><i class="fa-solid fa-check text-green-500 mr-2"></i><strong>Media Foundation:</strong> Access hardware encoders (Qualcomm/Adreno) directly via Windows SDK.</p>
+                    </div>
+                </div>
+
+                <!-- Tech Card 3 -->
+                <div class="bg-white rounded-lg shadow border border-stone-200 p-6">
+                    <div class="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center mb-4 text-rose-600">
+                        <i class="fa-solid fa-desktop text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-stone-900 mb-2">Capture APIs</h3>
+                    <p class="text-stone-600 text-sm mb-4">
+                        Method of capturing screen pixels determines frame rate and battery life.
+                    </p>
+                    <div class="bg-stone-50 p-3 rounded text-xs text-stone-700 space-y-2">
+                        <p><i class="fa-solid fa-check text-green-500 mr-2"></i><strong>Windows.Graphics.Capture:</strong> Modern, GPU-efficient, zero-copy capabilities.</p>
+                        <p><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-2"></i><strong>DXGI Desktop Dup:</strong> Robust but varying support on mobile drivers.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-stone-200 mt-12">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
+            <div class="flex justify-center space-x-6 md:order-2">
+                <span class="text-stone-400 text-sm">Generated by AI Agent</span>
+            </div>
+            <div class="mt-8 md:mt-0 md:order-1">
+                <p class="text-center text-base text-stone-400">&copy; 2023 ShareX Optimization Plan. Internal use only.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Data Store for the Scope of Works
+        const projectStages = [
+            {
+                id: 1,
+                title: "Stage 1: Build & Dependency Analysis",
+                complexity: 20,
+                icon: "fa-box-open",
+                summary: "Foundation stage. Establish the ARM64 build target and audit all NuGet packages.",
+                preflight: "Inspect the `.csproj` and solution files. Identify any `x86`/`x64` specific DLL references or build events.",
+                tasks: [
+                    "Add `win-arm64` as a specific build target in Solution Configuration.",
+                    "Audit all NuGet dependencies (e.g., `Newtonsoft.Json`, `SSH.NET`) for ARM64 runtimes.",
+                    "Identify unmanaged DLL imports (P/Invoke) that lack ARM64 binaries.",
+                    "Setup CI/CD pipeline (GitHub Actions) to include ARM64 compilation artifacts.",
+                    "Verify .NET 6/7/8+ compatibility (modern .NET has better ARM support than .NET Framework)."
+                ],
+                tech: ["MSBuild", "NuGet", ".NET 8"]
+            },
+            {
+                id: 2,
+                title: "Stage 2: Basic Capture & UI Rendering",
+                complexity: 40,
+                icon: "fa-window-maximize",
+                summary: "Ensure the GUI renders correctly and basic screenshots function without crashing.",
+                preflight: "Run the build on an ARM64 device (e.g., Surface Pro X or Dev Kit). Note visual glitches or 'Not implemented' exceptions.",
+                tasks: [
+                    "Test WinForms/WPF scaling on ARM64 drivers (often high DPI).",
+                    "Verify `BitBlt` and standard GDI capture methods. If GDI emulation is too slow, flag for Stage 4.",
+                    "Ensure hotkey hooks (User32.dll) function correctly in the emulated/native hybrid environment.",
+                    "Fix any styling issues caused by differences in font rendering (DirectWrite on ARM)."
+                ],
+                tech: ["WinForms", "WPF", "User32.dll"]
+            },
+            {
+                id: 3,
+                title: "Stage 3: Image Editor Optimization (SkiaSharp)",
+                complexity: 75,
+                icon: "fa-palette",
+                summary: "Replace slow software-rendered GDI+ drawing with hardware-accelerated SkiaSharp for the Image Editor.",
+                preflight: "Check `ShareX.ImageEditor` code. Map out heavy usage of `System.Drawing.Graphics`.",
+                tasks: [
+                    "Introduce `SkiaSharp` and `SkiaSharp.Views.WPF` NuGet packages.",
+                    "Create an abstraction layer for drawing operations to switch between GDI+ and Skia.",
+                    "Refactor the Annotation engine (Arrows, Text, Blur) to use Skia canvas commands.",
+                    "Implement GPU-accelerated canvas view for smoother zooming/panning on mobile chips.",
+                    "Ensure `SkiaSharp.NativeAssets.Linux` or appropriate assets are not bloatware in the Windows build."
+                ],
+                tech: ["SkiaSharp", "OpenGL", "Hardware Accel"]
+            },
+            {
+                id: 4,
+                title: "Stage 4: Screen Recording (FFmpeg ARM64)",
+                complexity: 85,
+                icon: "fa-film",
+                summary: "Enable high-performance screen recording using native encoders.",
+                preflight: "Inspect `ShareX.ScreenRecorderLib`. Check how `ffmpeg.exe` is bundled and called.",
+                tasks: [
+                    "Source or compile `ffmpeg.exe` for `aarch64-windows`.",
+                    "Modify the FFmpeg command generator to detect ARM64 and prefer hardware encoders (`h264_qsv` alternative for Snapdragon, often `hevc_qcom` or MediaFoundation `h264_mf`).",
+                    "Update `ScreenRecorderLib` to support `Windows.Graphics.Capture` (WGC) for high-framerate, GPU-resident capture.",
+                    "Test audio capture loopback on ARM64 drivers."
+                ],
+                tech: ["FFmpeg", "Media Foundation", "WGC"]
+            },
+            {
+                id: 5,
+                title: "Stage 5: Final Polish & Performance Tuning",
+                complexity: 60,
+                icon: "fa-rocket",
+                summary: "Benchmark and optimize startup time and battery usage.",
+                preflight: "Use Windows Performance Analyzer to identify hot paths in the native ARM64 build.",
+                tasks: [
+                    "Profile memory usage. Native ARM64 pointers are 64-bit; ensure no memory leaks compared to x86.",
+                    "Optimize background process CPU usage to <1% when idle (critical for battery-powered ARM laptops).",
+                    "Implement 'Efficiency Mode' APIs for Windows 11 on ARM.",
+                    "Final QA pass on all context menus and shell integrations."
+                ],
+                tech: ["WPA", "Profiling", "Battery APIs"]
+            }
+        ];
+
+        // Chart Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initComplexityChart();
+            initPerformanceChart();
+            renderStageList();
+            renderStageDetails(0); // Load first stage by default
+        });
+
+        function initComplexityChart() {
+            const ctx = document.getElementById('complexityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: projectStages.map(s => `Stage ${s.id}`),
+                    datasets: [{
+                        label: 'Complexity Score (0-100)',
+                        data: projectStages.map(s => s.complexity),
+                        backgroundColor: [
+                            '#ccfbf1', // Stage 1
+                            '#99f6e4', // Stage 2
+                            '#5eead4', // Stage 3
+                            '#2dd4bf', // Stage 4
+                            '#14b8a6'  // Stage 5
+                        ],
+                        borderColor: '#0f766e',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: { display: true, text: 'Complexity / Risk' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function initPerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Startup', 'Screen Cap (GDI)', 'Image Edit (Zoom)', 'Video Encode (FPS)'],
+                    datasets: [
+                        {
+                            label: 'Emulated x64 (Current)',
+                            data: [4.5, 30, 25, 18],
+                            borderColor: '#a8a29e', // Stone-400
+                            backgroundColor: 'rgba(168, 162, 158, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Native ARM64 (Target)',
+                            data: [1.2, 55, 60, 58],
+                            borderColor: '#0d9488', // Teal-600
+                            backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Score (Lower is better for Time, Higher for FPS)' } // Simplified axis for demo
+                        }
+                    }
+                }
+            });
+        }
+
+        // Interaction Logic
+        function renderStageList() {
+            const listContainer = document.getElementById('stageList');
+            listContainer.innerHTML = '';
+            
+            projectStages.forEach((stage, index) => {
+                const btn = document.createElement('div');
+                btn.className = `stage-card cursor-pointer p-4 rounded-lg border border-stone-200 bg-white flex items-center justify-between ${index === 0 ? 'active-stage' : ''}`;
+                btn.onclick = () => {
+                    // Update UI state
+                    document.querySelectorAll('.stage-card').forEach(el => {
+                        el.classList.remove('active-stage');
+                        el.classList.remove('bg-teal-50');
+                    });
+                    btn.classList.add('active-stage');
+                    
+                    // Render details
+                    renderStageDetails(index);
+                };
+
+                const content = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-600 font-bold">
+                            ${stage.id}
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-stone-900 text-sm">${stage.title}</h4>
+                            <div class="flex gap-2 mt-1">
+                                ${getComplexityBadge(stage.complexity)}
+                            </div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-stone-300"></i>
+                `;
+                btn.innerHTML = content;
+                listContainer.appendChild(btn);
+            });
+        }
+
+        function getComplexityBadge(score) {
+            let colorClass = 'bg-green-100 text-green-800';
+            let label = 'Low';
+            if (score > 40) { colorClass = 'bg-yellow-100 text-yellow-800'; label = 'Med'; }
+            if (score > 70) { colorClass = 'bg-red-100 text-red-800'; label = 'High'; }
+            
+            return `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorClass}">${label} Complexity</span>`;
+        }
+
+        function renderStageDetails(index) {
+            const stage = projectStages[index];
+            const container = document.getElementById('stageContent');
+            
+            // Fade out effect
+            container.style.opacity = '0';
+            
+            setTimeout(() => {
+                const techTags = stage.tech.map(t => `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-800 border border-stone-200">${t}</span>`).join('');
+                const taskList = stage.tasks.map(t => `<li class="flex items-start"><span class="mr-2 text-teal-500 mt-1"><i class="fa-solid fa-check-circle"></i></span><span>${t}</span></li>`).join('');
+
+                container.innerHTML = `
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="p-3 bg-teal-600 rounded-lg text-white shadow-md">
+                                <i class="fa-solid ${stage.icon} text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-stone-900">${stage.title}</h2>
+                                <div class="mt-1 flex gap-2">${techTags}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-stone-500 uppercase tracking-wide font-bold">Complexity</span>
+                            <div class="text-2xl font-bold text-stone-700">${stage.complexity}/100</div>
+                        </div>
+                    </div>
+
+                    <div class="prose prose-stone max-w-none">
+                        <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6 rounded-r-md">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-amber-800">Pre-flight Inspection Required</h3>
+                                    <div class="mt-2 text-sm text-amber-700">
+                                        <p>${stage.preflight}</p>
+                                        <p class="font-bold mt-1">Do not duplicate existing logic.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="text-lg font-semibold text-stone-900 mb-3 border-b border-stone-100 pb-2">Scope of Works:</h3>
+                        <p class="text-stone-600 mb-4">${stage.summary}</p>
+                        <ul class="space-y-3 text-stone-600">
+                            ${taskList}
+                        </ul>
+                    </div>
+                `;
+                container.style.opacity = '1';
+            }, 300);
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+    </script>
+</body>
+</html>
