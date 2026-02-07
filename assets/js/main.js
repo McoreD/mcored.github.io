@@ -3,10 +3,8 @@
 const CRYPTO_IDS = 'bitcoin,solana,avalanche-2,sui';
 const CRYPTO_API_URL = `https://api.coingecko.com/api/v3/simple/price?ids=${CRYPTO_IDS}&vs_currencies=usd&include_24hr_change=true`;
 
-// Hacker News API for Tech News
-// Using Algolia Search API for better filtering
-const NEWS_KEYWORDS = 'SpaceX OR Tesla OR xAI OR Grok OR Claude OR Gemini OR OpenAI';
-const NEWS_API_URL = `https://hn.algolia.com/api/v1/search_by_date?query=${encodeURIComponent(NEWS_KEYWORDS)}&tags=story&hitsPerPage=10`;
+// Hacker News API (Fallback or legacy, currently unused)
+// const NEWS_API_URL = ...;
 
 // DOM Elements
 const cryptoTicker = document.getElementById('crypto-ticker');
@@ -61,53 +59,65 @@ async function fetchCryptoPrices() {
     }
 }
 
+// Google News RSS via CORS Proxy
+// Topics: xAI, Grok, Claude, Gemini, OpenAI, SpaceX, Tesla
+const NEWS_RSS_URL = 'https://news.google.com/rss/search?q=xAI+OR+Grok+OR+Claude+AI+OR+Gemini+AI+OR+OpenAI+OR+SpaceX+OR+Tesla+when:7d&hl=en-US&gl=US&ceid=US:en';
+const PROXY_URL = 'https://api.allorigins.win/get?url=';
+
 // Fetch Tech News
 async function fetchNews() {
     try {
-        const response = await fetch(NEWS_API_URL);
-        if (!response.ok) throw new Error('Failed to fetch news');
+        const response = await fetch(PROXY_URL + encodeURIComponent(NEWS_RSS_URL));
+        if (!response.ok) throw new Error('Failed to fetch news proxy');
+        
         const data = await response.json();
+        if (!data.contents) throw new Error('Empty proxy response');
 
-        if (data.hits && data.hits.length > 0) {
+        // Parse XML
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+        const items = xmlDoc.querySelectorAll("item");
+
+        if (items.length > 0) {
             let newsHTML = '';
-            // Limit to 6 items for layout balance
-            const items = data.hits.slice(0, 6);
+            // Limit to 6 items
+            const limit = 6;
             
-            items.forEach(story => {
-                if (!story.title) return; // Skip if no title
+            for (let i = 0; i < Math.min(items.length, limit); i++) {
+                const item = items[i];
+                const title = item.querySelector("title").textContent;
+                const link = item.querySelector("link").textContent;
+                const pubDate = new Date(item.querySelector("pubDate").textContent);
+                const dateStr = pubDate.toLocaleDateString() + ' ' + pubDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 
-                const date = new Date(story.created_at).toLocaleDateString();
-                // Prioritize external URL, fallback to HN discussion if necessary
-                const isExternal = !!story.url;
-                const link = story.url || `https://news.ycombinator.com/item?id=${story.objectID}`;
+                // Extract Source from title if possible (Google News usually formats as "Title - Source")
+                let source = "Google News";
+                const titleParts = title.split(' - ');
+                let displayTitle = title;
                 
-                // Extract domain for display if external
-                let domain = '';
-                if (isExternal) {
-                    try {
-                        domain = new URL(story.url).hostname.replace('www.', '');
-                    } catch (e) {}
-                } else {
-                    domain = 'news.ycombinator.com';
+                if (titleParts.length > 1) {
+                    source = titleParts.pop(); // Last part is usually source
+                    displayTitle = titleParts.join(' - ');
                 }
 
                 newsHTML += `
                     <div class="news-item">
                         <div class="news-meta">
-                            <span class="news-source">${domain}</span>
-                            <span class="news-date">${date}</span>
+                            <span class="news-source">${source}</span>
+                            <span class="news-date">${dateStr}</span>
                         </div>
-                        <a href="${link}" target="_blank" class="news-title">${story.title}</a>
+                        <a href="${link}" target="_blank" class="news-title">${displayTitle}</a>
                     </div>
                 `;
-            });
+            }
             newsFeed.innerHTML = newsHTML;
         } else {
             newsFeed.innerHTML = '<div class="info">No recent updates found for tracked sectors.</div>';
         }
     } catch (error) {
         console.error('News fetch error:', error);
-        newsFeed.innerHTML = '<div class="error">Comms Link Severed: News Feed Unavailable</div>';
+        // Fallback to error message, or could implement HN fallback here
+        newsFeed.innerHTML = `<div class="error">Comms Link Severed: ${error.message}</div>`;
     }
 }
 
