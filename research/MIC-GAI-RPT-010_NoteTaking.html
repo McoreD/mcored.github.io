@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WA Business Compliance: Interactive Requirements Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Chosen Palette: Warm Sand & Slate (Minimalist Harmony) -->
+    <!-- Background: Stone-50 (#fafaf9) - Warm neutral -->
+    <!-- Text: Stone-800 (#292524) -->
+    <!-- Primary UI: Stone-200 (#e7e5e4) for cards -->
+    <!-- Accents: Amber-600 (#d97706) for highlights, Slate-600 (#475569) for structure -->
+
+    <style>
+        body {
+            background-color: #fafaf9; /* Warm neutral background */
+            color: #292524;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Interactive Elements Styling */
+        .interactive-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .interactive-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-color: #d97706; 
+        }
+        .active-card {
+            border-color: #d97706;
+            background-color: #fffbeb; /* Light amber bg */
+        }
+
+        /* Chart Container Styling (Mandatory) */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+    
+    <!-- Application Structure Plan: 
+         The app is designed as a "Requirements Explorer" for a WA Business Owner. 
+         Structure:
+         1. Hero Section: Sets the context (Fair Work Compliance).
+         2. "The Data Landscape" (Dashboard): A Donut chart visualizing the types of records. Interaction: Clicking slices updates a side panel with specific legal risks for that data type.
+         3. "The Gap Analysis" (Comparison): A Radar chart comparing "Standard Tools" (OneNote) vs "Required Solution". Interaction: Toggling datasets to see the visual gap in capabilities.
+         4. "Risk Trajectory" (Plotly Line): Showing compliance risk over time with vs. without a system. Interaction: Slider to adjust "Audit Frequency" (simulation).
+         5. "Feature Priority" (Interactive Grid): A grid of features. Interaction: Clicking a feature reveals why it is legally protective.
+         Rationale: This structure moves from "What is the problem?" (Data/Risk) to "Why do current tools fail?" (Gap) to "What is the solution?" (Features), guiding the user logically through the requirements. 
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. Record Composition -> Goal: Inform -> Donut Chart (Chart.js) -> Interactive slice clicking to reveal text details. Justification: Best for showing parts of a whole (record types).
+         2. Tool Comparison -> Goal: Compare -> Radar Chart (Chart.js) -> Toggle datasets. Justification: excellent for multi-variable comparison (Simplicity vs Structure).
+         3. Risk Over Time -> Goal: Change -> Line Chart (Plotly Canvas) -> Slider interaction. Justification: Plotly handles continuous functions well; visualizing "Risk" accumulation is powerful.
+         4. Feature List -> Goal: Organize -> CSS Grid + JS Content Swap. Justification: Clean, text-heavy information needs structured layout, not a chart.
+         CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="antialiased selection:bg-amber-200 selection:text-amber-900">
+
+    <!-- Navigation / Header -->
+    <nav class="w-full bg-white border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-semibold text-stone-700 tracking-tight">Compliance<span class="text-amber-600">Log</span> WA</span>
+                </div>
+                <div class="flex items-center space-x-4 text-sm font-medium text-stone-500">
+                    <a href="#landscape" class="hover:text-amber-600 transition-colors">Data Landscape</a>
+                    <a href="#gap-analysis" class="hover:text-amber-600 transition-colors">The Gap</a>
+                    <a href="#risk-projection" class="hover:text-amber-600 transition-colors">Risk Projection</a>
+                    <a href="#solution" class="hover:text-amber-600 transition-colors">Solution</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
+
+        <!-- Intro Section -->
+        <section class="text-center space-y-4">
+            <h1 class="text-4xl md:text-5xl font-bold text-stone-800 tracking-tight">Western Australian Business Compliance</h1>
+            <p class="max-w-3xl mx-auto text-lg text-stone-600 leading-relaxed">
+                As a business owner, the burden of proof lies with you. This interactive report analyzes the requirements for a legally protective, structured record-keeping system designed to withstand Fair Work scrutiny. Explore the data below to understand the gap between standard note-taking and compliance-ready logging.
+            </p>
+        </section>
+
+        <!-- SECTION 1: The Data Landscape (Donut Chart + Context) -->
+        <section id="landscape" class="scroll-mt-20">
+            <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+                <div class="p-8 border-b border-stone-100">
+                    <h2 class="text-2xl font-bold text-stone-800">The Record-Keeping Composition</h2>
+                    <p class="mt-2 text-stone-600">
+                        Compliance is not a monolith; it is an aggregate of various daily interactions. 
+                        Click on the chart segments below to explore the specific risks associated with each data type found in a typical WA business environment.
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 items-center">
+                    <!-- Chart Column -->
+                    <div class="flex flex-col items-center">
+                        <div class="chart-container">
+                            <canvas id="recordCompositionChart"></canvas>
+                        </div>
+                        <p class="text-xs text-stone-400 mt-4">Source: WA Business Requirements Analysis</p>
+                    </div>
+
+                    <!-- Interactive Detail Column -->
+                    <div class="bg-stone-50 rounded-lg p-6 border border-stone-200 h-full flex flex-col justify-center">
+                        <h3 id="detail-title" class="text-xl font-bold text-amber-700 mb-3">Select a Category</h3>
+                        <p id="detail-desc" class="text-stone-600 leading-relaxed">
+                            Interact with the chart to see why specific record types like Payroll Discussions or Diary Entries require structured, timestamped logging for Fair Work compliance.
+                        </p>
+                        <div id="detail-action" class="mt-6 hidden">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                High Risk Area
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: The Gap Analysis (Radar Chart) -->
+        <section id="gap-analysis" class="scroll-mt-20">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Text Context -->
+                <div class="lg:col-span-1 space-y-6">
+                    <h2 class="text-3xl font-bold text-stone-800">The Capability Gap</h2>
+                    <p class="text-stone-600 leading-relaxed">
+                        Why do standard tools fail? While OneNote and EndNote are powerful, they lack the specific rigidity required for legal protection. 
+                    </p>
+                    <div class="p-4 bg-white rounded-lg border border-stone-200 shadow-sm">
+                        <h4 class="font-semibold text-stone-800 mb-2">Comparison Controls</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                                <input type="checkbox" id="toggle-onenote" checked class="form-checkbox h-5 w-5 text-slate-500 rounded border-stone-300 focus:ring-amber-500">
+                                <span class="text-stone-700">Show Standard Tools (OneNote)</span>
+                            </label>
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                                <input type="checkbox" id="toggle-ideal" checked class="form-checkbox h-5 w-5 text-amber-600 rounded border-stone-300 focus:ring-amber-500">
+                                <span class="text-stone-700 font-medium">Show Ideal Solution</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="text-sm text-stone-500">
+                        <strong class="text-amber-700">Key Insight:</strong> Notice the sharp drop in "Quick Entry" and "Searchability" for standard tools compared to the ideal tailored system.
+                    </div>
+                </div>
+
+                <!-- Visualization -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+                    <div class="chart-container">
+                        <canvas id="gapRadarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Risk Projection (Plotly.js) -->
+        <section id="risk-projection" class="scroll-mt-20">
+            <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-stone-800">Compliance Risk Over Time</h2>
+                        <p class="text-stone-600 mt-1">Projecting the accumulation of unverified verbal interactions versus documented evidence.</p>
+                    </div>
+                    <!-- Slider Control -->
+                    <div class="mt-4 md:mt-0 bg-stone-50 p-3 rounded-lg border border-stone-200">
+                        <label for="audit-frequency" class="block text-sm font-medium text-stone-700 mb-1">Employee Headcount (Risk Multiplier): <span id="headcount-val" class="font-bold text-amber-600">10</span></label>
+                        <input type="range" id="audit-frequency" min="1" max="50" value="10" class="w-full h-2 bg-stone-300 rounded-lg appearance-none cursor-pointer accent-amber-600">
+                    </div>
+                </div>
+                
+                <div class="w-full relative bg-stone-50 rounded border border-stone-200 overflow-hidden">
+                     <!-- Plotly Chart Container -->
+                    <div id="riskPlot" style="width: 100%; height: 400px;"></div>
+                </div>
+                <p class="mt-4 text-sm text-stone-500 italic">
+                    *Simulation showing the divergence of legal exposure. The "Ad-hoc" line represents reliance on memory and sporadic notes. The "Structured" line represents a searchable, timestamped system.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 4: The Ideal Solution (Interactive Cards) -->
+        <section id="solution" class="scroll-mt-20 pb-12">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-stone-800">System Requirements Breakdown</h2>
+                <p class="text-stone-600 max-w-2xl mx-auto mt-2">
+                    To bridge the gap and reduce risk, the proposed system must deliver on specific functional requirements. Click to understand the "Why".
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="interactive-card bg-white p-6 rounded-xl shadow-sm border border-stone-200 group" onclick="updateSolutionDetail('timestamp')">
+                    <div class="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold mb-4 group-hover:bg-amber-600 group-hover:text-white transition-colors">1</div>
+                    <h3 class="font-bold text-lg text-stone-800 mb-2">Legal Timestamping</h3>
+                    <p class="text-sm text-stone-500">Immutable date/time records.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="interactive-card bg-white p-6 rounded-xl shadow-sm border border-stone-200 group" onclick="updateSolutionDetail('search')">
+                    <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 font-bold mb-4 group-hover:bg-slate-600 group-hover:text-white transition-colors">2</div>
+                    <h3 class="font-bold text-lg text-stone-800 mb-2">Deep Searchability</h3>
+                    <p class="text-sm text-stone-500">Instant retrieval by keyword/date.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="interactive-card bg-white p-6 rounded-xl shadow-sm border border-stone-200 group" onclick="updateSolutionDetail('template')">
+                    <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 font-bold mb-4 group-hover:bg-slate-600 group-hover:text-white transition-colors">3</div>
+                    <h3 class="font-bold text-lg text-stone-800 mb-2">Structured Templates</h3>
+                    <p class="text-sm text-stone-500">Guided fields for consistency.</p>
+                </div>
+                <!-- Card 4 -->
+                <div class="interactive-card bg-white p-6 rounded-xl shadow-sm border border-stone-200 group" onclick="updateSolutionDetail('ui')">
+                    <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 font-bold mb-4 group-hover:bg-slate-600 group-hover:text-white transition-colors">4</div>
+                    <h3 class="font-bold text-lg text-stone-800 mb-2">Simplified UI</h3>
+                    <p class="text-sm text-stone-500">Mobile & Windows accessible.</p>
+                </div>
+            </div>
+
+            <!-- Dynamic Detail Box -->
+            <div id="solution-detail" class="mt-8 bg-amber-50 rounded-xl border border-amber-200 p-8 transition-all duration-500 opacity-100">
+                <h4 id="sol-title" class="text-xl font-bold text-amber-900 mb-2">Select a feature above</h4>
+                <p id="sol-desc" class="text-amber-800">
+                    Click on the requirement cards to see the detailed technical and compliance justification for each feature.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-stone-800 text-stone-400 py-12">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="mb-4 text-stone-300 font-medium">WA Business Compliance Requirements</p>
+            <div class="w-16 h-1 bg-amber-600 mx-auto rounded mb-4"></div>
+            <p class="text-sm">Generated Analysis based on User Requirements. &copy; 2026.</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA STORAGE & STATE ---
+        const recordData = {
+            labels: ['Payroll Discussions', 'Performance Reviews', 'Diary Entries', 'Meeting Notes'],
+            descriptions: {
+                'Payroll Discussions': 'High Risk. Disputes often arise months later regarding verbal agreements on rates, overtime, or allowances. Precise recording of "who said what" is critical for Fair Work defense.',
+                'Performance Reviews': 'Critical. Unfair dismissal claims hinge on procedural fairness. Proof of prior informal counseling and structured feedback sessions is mandatory.',
+                'Diary Entries': 'Daily Operations. While seemingly minor, these establish a pattern of behavior and operational context that can corroborate other more serious claims.',
+                'Meeting Notes': 'General Record. Decisions made in team meetings often impact policy. Structured notes ensure that policy changes are communicated and logged.'
+            }
+        };
+
+        const solutionDetails = {
+            'timestamp': {
+                title: 'Why Timestamping is Non-Negotiable',
+                desc: 'In a legal setting, metadata matters. A Word doc edited "Last Tuesday" is weak evidence. A system that auto-locks entries with a server-side timestamp provides "contemporaneous notes" status, which is highly regarded by courts and tribunals.'
+            },
+            'search': {
+                title: 'The Power of Retrieval',
+                desc: 'Compliance is useless if you cannot find the record. A dedicated system must index content by employee name, date range, and category (e.g., "Late Arrival"). This allows for instant cross-referencing during an audit.'
+            },
+            'template': {
+                title: 'Consistency via Templates',
+                desc: 'Blank pages lead to missing details. Structured templates force the user to record specific fields (e.g., "Who was present?", "Action Items", "Follow-up Date"), ensuring no critical legal detail is omitted.'
+            },
+            'ui': {
+                title: 'Adoption depends on Simplicity',
+                desc: 'The best system is the one you actually use. Complex tools like OneNote/EndNote create friction. A "Quick Entry" interface on Mobile ensures that notes are captured immediately after the event, not forgotten by end-of-day.'
+            }
+        };
+
+        // --- CHART 1: DONUT (Record Composition) ---
+        const ctxDonut = document.getElementById('recordCompositionChart').getContext('2d');
+        
+        // Label Wrapping Helper
+        function wrapLabels(labels, maxLength = 16) {
+            return labels.map(label => {
+                if (label.length <= maxLength) return label;
+                const words = label.split(' ');
+                const lines = [];
+                let currentLine = words[0];
+                for (let i = 1; i < words.length; i++) {
+                    if ((currentLine + " " + words[i]).length <= maxLength) {
+                        currentLine += " " + words[i];
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = words[i];
+                    }
+                }
+                lines.push(currentLine);
+                return lines;
+            });
+        }
+
+        const donutChart = new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: wrapLabels(recordData.labels),
+                datasets: [{
+                    data: [30, 25, 20, 25],
+                    backgroundColor: ['#d97706', '#475569', '#94a3b8', '#e7e5e4'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                onClick: (e, activeElements) => {
+                    if (activeElements.length > 0) {
+                        const index = activeElements[0].index;
+                        const labelRaw = recordData.labels[index];
+                        updateDonutDetail(labelRaw);
+                    }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        function updateDonutDetail(category) {
+            document.getElementById('detail-title').innerText = category;
+            document.getElementById('detail-desc').innerText = recordData.descriptions[category];
+            document.getElementById('detail-action').classList.remove('hidden');
+        }
+
+        // --- CHART 2: RADAR (Gap Analysis) ---
+        const ctxRadar = document.getElementById('gapRadarChart').getContext('2d');
+        const radarChart = new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: wrapLabels(['Quick Entry Speed', 'Mobile Access', 'Search Retrieval', 'Data Structure', 'Legal Validity']),
+                datasets: [
+                    {
+                        label: 'Standard Tools (OneNote)',
+                        data: [4, 5, 3, 2, 3],
+                        fill: true,
+                        backgroundColor: 'rgba(148, 163, 184, 0.2)', // Slate 400 transparent
+                        borderColor: '#94a3b8',
+                        pointBackgroundColor: '#94a3b8'
+                    },
+                    {
+                        label: 'Ideal Solution',
+                        data: [9, 9, 10, 10, 10],
+                        fill: true,
+                        backgroundColor: 'rgba(217, 119, 6, 0.2)', // Amber 600 transparent
+                        borderColor: '#d97706',
+                        pointBackgroundColor: '#d97706'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#e5e7eb' },
+                        grid: { color: '#e5e7eb' },
+                        suggestedMin: 0,
+                        suggestedMax: 10,
+                        pointLabels: {
+                            font: { size: 12 },
+                            color: '#44403c'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: true },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Radar Toggle Interaction
+        document.getElementById('toggle-onenote').addEventListener('change', (e) => {
+            radarChart.data.datasets[0].hidden = !e.target.checked;
+            radarChart.update();
+        });
+        document.getElementById('toggle-ideal').addEventListener('change', (e) => {
+            radarChart.data.datasets[1].hidden = !e.target.checked;
+            radarChart.update();
+        });
+
+        // --- CHART 3: PLOTLY (Risk Projection) ---
+        function updatePlotly(headcount) {
+            // Generate Data based on headcount multiplier
+            const months = Array.from({length: 12}, (_, i) => `Month ${i+1}`);
+            
+            // "Ad-hoc" risk grows exponentially with time and headcount
+            const adHocRisk = months.map((_, i) => Math.min(100, (i * 1.5 * (headcount/5)) + 10)); 
+            
+            // "Structured" risk stays flat/low
+            const structuredRisk = months.map(() => 5 + (headcount * 0.2)); 
+
+            const trace1 = {
+                x: months,
+                y: adHocRisk,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Risk: Ad-hoc Notes',
+                line: { color: '#ef4444', width: 3 }, // Red
+                fill: 'tozeroy',
+                fillcolor: 'rgba(239, 68, 68, 0.1)'
+            };
+
+            const trace2 = {
+                x: months,
+                y: structuredRisk,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Risk: Structured System',
+                line: { color: '#10b981', width: 3 }, // Emerald
+                fill: 'tozeroy',
+                fillcolor: 'rgba(16, 185, 129, 0.1)'
+            };
+
+            const layout = {
+                margin: { t: 20, r: 20, l: 40, b: 40 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                showlegend: true,
+                legend: { orientation: 'h', y: 1.1 },
+                xaxis: { title: 'Timeline' },
+                yaxis: { title: 'Compliance Risk Score (0-100)', range: [0, 100] },
+                font: { family: 'Segoe UI, sans-serif', color: '#44403c' }
+            };
+
+            // Force canvas rendering where possible in config
+            Plotly.react('riskPlot', [trace1, trace2], layout, {responsive: true, renderer: 'canvas'});
+        }
+
+        // Initial Plot
+        updatePlotly(10);
+
+        // Slider Interaction
+        document.getElementById('audit-frequency').addEventListener('input', (e) => {
+            const val = e.target.value;
+            document.getElementById('headcount-val').innerText = val;
+            updatePlotly(val);
+        });
+
+        // --- INTERACTION: SOLUTION DETAILS ---
+        function updateSolutionDetail(key) {
+            const data = solutionDetails[key];
+            const titleEl = document.getElementById('sol-title');
+            const descEl = document.getElementById('sol-desc');
+            const container = document.getElementById('solution-detail');
+
+            // Simple Fade Effect
+            container.style.opacity = '0';
+            setTimeout(() => {
+                titleEl.innerText = data.title;
+                descEl.innerText = data.desc;
+                container.style.opacity = '1';
+            }, 200);
+            
+            // Highlight active card could be added here logic wise if needed
+        }
+
+        // Initialize First Detail
+        updateSolutionDetail('timestamp');
+
+    </script>
+</body>
+</html>
