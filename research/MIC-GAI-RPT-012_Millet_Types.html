@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mighty Millets: A Nutritional Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        oat: '#FDFBF7',
+                        wheat: '#F5EEDC',
+                        millet: '#E3C16F',
+                        earth: '#8B5A2B',
+                        leaf: '#6B8E23',
+                        charcoal: '#333333'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        serif: ['Merriweather', 'Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FDFBF7;
+            color: #333333;
+        }
+        
+        /* Strict Chart Container Styling per requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 450px;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FDFBF7;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E3C16F;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8B5A2B;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .active-millet-btn {
+            background-color: #E3C16F;
+            color: #fff;
+            font-weight: bold;
+            border-color: #E3C16F;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Chosen Palette: Warm Neutrals (Oat #FDFBF7, Wheat #F5EEDC, Millet Gold #E3C16F, Earth Brown #8B5A2B, Leaf Green #6B8E23) -->
+    
+    <!-- Application Structure Plan: 
+         1. Hero/Intro: Establishes context and purpose of the dashboard.
+         2. Executive Summary: High-level textual insights comparing millets to rice/quinoa.
+         3. Interactive Millet Explorer: A master-detail view allowing users to learn about specific millet types (Foxtail, Finger, etc.) individually, preventing information overload.
+         4. Nutritional Data Showdown (Interactive Chart): A dynamic bar chart comparing key nutrients (Protein, Fiber, Calcium, Iron) across millets, rice, and quinoa. Users control the variable to see specific comparisons.
+         5. Glycemic Index Analysis: A static comparison visualizing the carb quality and GI, crucial for the "health benefits" aspect of the prompt.
+         This structure moves from qualitative understanding to quantitative exploration, optimizing for user engagement and learning. 
+    -->
+    
+    <!-- Visualization & Content Choices: 
+         - Goal: Compare Nutrients -> Method: Interactive Bar Chart (Chart.js) -> Interaction: Dropdown selection -> Justification: Best for direct cross-categorical value comparisons.
+         - Goal: Explore Varieties -> Method: Master-Detail List/Card -> Interaction: Click list items to update card -> Justification: Organizes dense textual/stat info cleanly.
+         - Goal: Visualize Health Impact (GI) -> Method: Horizontal Bar Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Clearly shows scale of GI from low to high.
+         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. Pure HTML/CSS, Unicode, and Canvas.
+    -->
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-panel shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <span class="text-2xl">🌾</span>
+                    <span class="font-serif font-bold text-xl text-earth">Millet Intelligence</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#overview" class="text-charcoal hover:text-earth transition-colors">Overview</a>
+                    <a href="#explorer" class="text-charcoal hover:text-earth transition-colors">Varieties</a>
+                    <a href="#nutrition" class="text-charcoal hover:text-earth transition-colors">Nutritional Data</a>
+                    <a href="#health" class="text-charcoal hover:text-earth transition-colors">Health Impact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-24 pb-12 md:pt-32 md:pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-wheat to-oat">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-serif font-extrabold text-charcoal mb-6 tracking-tight">
+                Beyond Rice & Quinoa: <br><span class="text-earth">The Nutritional Power of Millets</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-700 leading-relaxed mb-8">
+                An interactive report analyzing the health benefits, nutritional profiles, and varieties of millets—ancient grains making a modern comeback. Discover why Foxtail, Finger, and Pearl millets are emerging as superior dietary staples.
+            </p>
+            <div class="flex justify-center gap-4">
+                <a href="#explorer" class="px-6 py-3 bg-earth text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-all">Explore Varieties</a>
+                <a href="#nutrition" class="px-6 py-3 bg-white text-earth border border-earth font-semibold rounded-lg shadow-sm hover:bg-wheat transition-all">View Data</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Section 1: Overview -->
+        <section id="overview" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="mb-10 border-l-4 border-millet pl-4">
+                <h2 class="text-3xl font-serif font-bold text-charcoal mb-2">Executive Summary</h2>
+                <p class="text-gray-600">This section provides foundational context for the research, establishing what millets are and how they broadly compare to common staples like white rice and popular superfoods like quinoa.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-4xl mb-4">🍚 vs 🌾</div>
+                    <h3 class="text-xl font-bold mb-2">The Rice Replacement</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        While white rice provides quick energy, it lacks significant fiber, protein, and micronutrients. Millets offer a similar culinary experience (can be boiled or steamed) but deliver a low Glycemic Index (GI), preventing blood sugar spikes and providing sustained energy.
+                    </p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-4xl mb-4">🥗 vs 🌾</div>
+                    <h3 class="text-xl font-bold mb-2">The Quinoa Challenger</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Quinoa is praised for its complete protein profile. However, millets hold their ground with comparable protein levels, often higher specific minerals (like calcium in Finger Millet or Iron in Pearl Millet), and are significantly more sustainable and drought-resistant to grow.
+                    </p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-4xl mb-4">🌱</div>
+                    <h3 class="text-xl font-bold mb-2">Environmental Edge</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Millets are "climate-smart" crops. They require roughly 30% of the water that rice needs, can grow in poor soils, and mature quickly. Incorporating them into the human diet promotes agricultural biodiversity and food security.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Millet Explorer -->
+        <section id="explorer" class="py-16 px-4 sm:px-6 lg:px-8 bg-wheat bg-opacity-30">
+            <div class="max-w-7xl mx-auto">
+                <div class="mb-10 border-l-4 border-earth pl-4">
+                    <h2 class="text-3xl font-serif font-bold text-charcoal mb-2">Millet Variety Explorer</h2>
+                    <p class="text-gray-600">Select a millet type from the menu to reveal its specific origin, health benefits, and defining characteristics. This interactive catalog breaks down the diverse family of millets.</p>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-8 bg-white rounded-2xl shadow-md overflow-hidden border border-gray-200">
+                    <!-- Master List -->
+                    <div class="w-full md:w-1/3 bg-gray-50 border-r border-gray-200 p-4 flex flex-col gap-2" id="millet-list">
+                        <!-- Buttons injected via JS -->
+                    </div>
+                    
+                    <!-- Detail View -->
+                    <div class="w-full md:w-2/3 p-8 relative min-h-[400px]">
+                        <div id="millet-detail" class="transition-opacity duration-300">
+                            <!-- Content injected via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Nutritional Data -->
+        <section id="nutrition" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="mb-10 border-l-4 border-millet pl-4">
+                <h2 class="text-3xl font-serif font-bold text-charcoal mb-2">Nutritional Showdown</h2>
+                <p class="text-gray-600">Interact with the data below to compare specific macronutrients and micronutrients across various grains per 100g serving (raw). Use the dropdown to shift the analytical lens.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                    <h3 class="text-xl font-bold text-charcoal" id="chart-title">Protein Content Comparison</h3>
+                    <div class="flex items-center gap-2">
+                        <label for="nutrient-select" class="font-semibold text-gray-700 text-sm uppercase tracking-wider">Select Metric:</label>
+                        <select id="nutrient-select" class="bg-wheat text-earth font-bold border-none rounded-lg p-2 cursor-pointer focus:ring-2 focus:ring-earth outline-none">
+                            <option value="protein">Protein (g)</option>
+                            <option value="fiber">Dietary Fiber (g)</option>
+                            <option value="iron">Iron (mg)</option>
+                            <option value="calcium">Calcium (mg)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- CRITICAL: Properly structured Chart Container -->
+                <div class="chart-container">
+                    <canvas id="nutrientChart"></canvas>
+                </div>
+                
+                <div class="mt-6 text-sm text-gray-500 italic text-center" id="chart-insight">
+                    <!-- Insight injected via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Health Impact & GI -->
+        <section id="health" class="py-16 px-4 sm:px-6 lg:px-8 bg-leaf bg-opacity-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="mb-10 border-l-4 border-leaf pl-4">
+                    <h2 class="text-3xl font-serif font-bold text-charcoal mb-2">Glycemic Index & Health Impact</h2>
+                    <p class="text-gray-600">A lower Glycemic Index (GI) means slower digestion and a gradual rise in blood sugar. This section illustrates why millets are highly recommended for diabetic management and sustained energy.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <ul class="space-y-6">
+                            <li class="flex gap-4">
+                                <div class="flex-shrink-0 w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm text-leaf">🩺</div>
+                                <div>
+                                    <h4 class="text-lg font-bold">Diabetes Management</h4>
+                                    <p class="text-gray-700 text-sm">Millets contain complex carbohydrates and high dietary fiber. This combination slows gastric emptying, resulting in a low to medium GI, making them ideal for managing and preventing Type 2 Diabetes.</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-4">
+                                <div class="flex-shrink-0 w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm text-leaf">❤️</div>
+                                <div>
+                                    <h4 class="text-lg font-bold">Cardiovascular Health</h4>
+                                    <p class="text-gray-700 text-sm">Rich in magnesium (which relaxes blood vessels) and potassium, millets help regulate blood pressure. Their high fiber content also helps in reducing LDL (bad) cholesterol levels.</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-4">
+                                <div class="flex-shrink-0 w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm text-leaf">🌾</div>
+                                <div>
+                                    <h4 class="text-lg font-bold">Naturally Gluten-Free</h4>
+                                    <p class="text-gray-700 text-sm">Unlike wheat, barley, or rye, all millets are inherently gluten-free, providing a safe, nutrient-dense carbohydrate alternative for individuals with Celiac disease or gluten sensitivities.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-bold text-charcoal text-center mb-4">Glycemic Index Comparison</h3>
+                        <!-- CRITICAL: Properly structured Chart Container -->
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="giChart"></canvas>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4 text-center">* GI ≤ 55 is considered Low. GI ≥ 70 is High.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-charcoal text-wheat py-8 text-center text-sm">
+        <p>© 2026 Millet Intelligence Report. Data compiled for comparative nutritional analysis.</p>
+    </footer>
+
+    <!-- Application Logic -->
+    <script>
+        // ---------------------------------------------------------
+        // DATA STORE
+        // ---------------------------------------------------------
+        
+        // 1. Millet Explorer Data
+        const milletProfiles = [
+            {
+                id: 'foxtail',
+                name: 'Foxtail Millet',
+                icon: '🌾',
+                alias: 'Kangni / Navane',
+                description: 'One of the oldest cultivated millets. Known for its smart-carb profile which steadily releases glucose. It is particularly rich in Vitamin B12, essential for maintaining a healthy heart and nervous system.',
+                stats: { protein: '12.3g', fiber: '8.0g', trait: 'High Antioxidants' },
+                color: '#E3C16F'
+            },
+            {
+                id: 'finger',
+                name: 'Finger Millet',
+                icon: '🌿',
+                alias: 'Ragi / Mandua',
+                description: 'A nutritional powerhouse, especially concerning minerals. It contains exponentially more calcium than any other grain, making it unparalleled for bone development in growing children and preventing osteoporosis.',
+                stats: { protein: '7.3g', calcium: '344mg', trait: 'Maximum Calcium' },
+                color: '#8B5A2B'
+            },
+            {
+                id: 'pearl',
+                name: 'Pearl Millet',
+                icon: '🌱',
+                alias: 'Bajra / Sajje',
+                description: 'The most widely grown type of millet globally. It thrives in extreme heat and dry areas. Nutritionally, it is an excellent source of Iron and Zinc, frequently used to combat anemia in developing regions.',
+                stats: { protein: '11.6g', iron: '8.0mg', trait: 'High Iron & Zinc' },
+                color: '#6B8E23'
+            },
+            {
+                id: 'proso',
+                name: 'Proso Millet',
+                icon: '☀️',
+                alias: 'Barri / Panivaragu',
+                description: 'Has the lowest water requirement of any cereal and matures very quickly. It has a high protein content and a significantly lower glycemic index compared to corn or wheat, making it a great daily staple.',
+                stats: { protein: '12.5g', fiber: '2.2g', trait: 'Drought Resilient' },
+                color: '#D4AF37'
+            },
+            {
+                id: 'sorghum',
+                name: 'Sorghum',
+                icon: '🌾',
+                alias: 'Jowar / Cholam',
+                description: 'Though technically a larger grain, it belongs to the millet family. It is rich in policosanols, which are shown to reduce cholesterol levels. It is highly versatile and frequently milled into flour for flatbreads.',
+                stats: { protein: '10.4g', fiber: '9.7g', trait: 'Cholesterol Reduction' },
+                color: '#CD853F'
+            }
+        ];
+
+        // 2. Nutritional Comparison Data (Per 100g)
+        const labels = ['Foxtail Millet', 'Finger Millet', 'Pearl Millet', 'Quinoa', 'White Rice'];
+        
+        const nutrientData = {
+            protein: {
+                label: 'Protein (g)',
+                data: [12.3, 7.3, 11.6, 14.1, 6.8],
+                insight: "While Quinoa leads slightly, Foxtail and Pearl millets provide nearly double the protein of white rice."
+            },
+            fiber: {
+                label: 'Dietary Fiber (g)',
+                data: [8.0, 11.2, 11.5, 6.0, 0.4],
+                insight: "Millets completely dominate in fiber. Finger and Pearl millet offer massive amounts compared to the negligible fiber in white rice."
+            },
+            iron: {
+                label: 'Iron (mg)',
+                data: [2.8, 3.9, 8.0, 4.6, 0.8],
+                insight: "Pearl Millet is an extraordinary source of iron, outperforming even Quinoa, and offering 10x more than white rice."
+            },
+            calcium: {
+                label: 'Calcium (mg)',
+                data: [31, 344, 42, 47, 10],
+                insight: "Finger Millet (Ragi) is an extreme outlier, offering unparalleled calcium levels for a plant-based source."
+            }
+        };
+
+        // 3. GI Data
+        const giData = [
+            { x: 54, y: 'Foxtail Millet' },
+            { x: 55, y: 'Finger Millet' },
+            { x: 55, y: 'Pearl Millet' },
+            { x: 53, y: 'Quinoa' },
+            { x: 73, y: 'White Rice' }
+        ];
+
+        // ---------------------------------------------------------
+        // STATE & INITIALIZATION
+        // ---------------------------------------------------------
+        let activeMilletId = 'foxtail';
+        let barChartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initMilletExplorer();
+            initNutrientChart();
+            initGIChart();
+            
+            // Event Listener for Dropdown
+            document.getElementById('nutrient-select').addEventListener('change', (e) => {
+                updateNutrientChart(e.target.value);
+            });
+        });
+
+        // ---------------------------------------------------------
+        // MILLET EXPLORER LOGIC
+        // ---------------------------------------------------------
+        function initMilletExplorer() {
+            const listContainer = document.getElementById('millet-list');
+            
+            // Build list buttons
+            milletProfiles.forEach(millet => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-4 py-3 rounded-lg transition-all border border-transparent hover:border-gray-300 text-charcoal font-medium flex items-center justify-between ${millet.id === activeMilletId ? 'active-millet-btn' : 'bg-white'}`;
+                btn.dataset.id = millet.id;
+                btn.innerHTML = `<span>${millet.icon} ${millet.name}</span> <span class="text-xs opacity-60">❯</span>`;
+                
+                btn.addEventListener('click', () => {
+                    activeMilletId = millet.id;
+                    // Update Active Styles
+                    Array.from(listContainer.children).forEach(child => {
+                        child.classList.remove('active-millet-btn');
+                        child.classList.add('bg-white', 'text-charcoal');
+                    });
+                    btn.classList.add('active-millet-btn');
+                    btn.classList.remove('bg-white', 'text-charcoal');
+                    
+                    renderMilletDetail();
+                });
+                
+                listContainer.appendChild(btn);
+            });
+
+            renderMilletDetail();
+        }
+
+        function renderMilletDetail() {
+            const container = document.getElementById('millet-detail');
+            const data = milletProfiles.find(m => m.id === activeMilletId);
+            
+            // Fade out effect
+            container.style.opacity = 0;
+            
+            setTimeout(() => {
+                // Generate Stat Cards HTML dynamically based on available stats
+                let statsHTML = '';
+                for (const [key, value] of Object.entries(data.stats)) {
+                    let label = key.charAt(0).toUpperCase() + key.slice(1);
+                    statsHTML += `
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 text-center">
+                            <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">${label}</div>
+                            <div class="text-xl font-bold" style="color: ${data.color}">${value}</div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = `
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="text-5xl bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center border border-gray-100 shadow-inner">${data.icon}</div>
+                        <div>
+                            <h3 class="text-3xl font-serif font-bold text-charcoal">${data.name}</h3>
+                            <p class="text-sm font-semibold text-gray-400 tracking-wide uppercase mt-1">AKA: ${data.alias}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="h-1 w-16 rounded mb-6 mt-4" style="background-color: ${data.color}"></div>
+                    
+                    <p class="text-gray-700 text-lg leading-relaxed mb-8">
+                        ${data.description}
+                    </p>
+                    
+                    <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Key Characteristics (Per 100g)</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        ${statsHTML}
+                    </div>
+                `;
+                // Fade in effect
+                container.style.opacity = 1;
+            }, 150);
+        }
+
+        // ---------------------------------------------------------
+        // CHART.JS LOGIC
+        // ---------------------------------------------------------
+        
+        // Colors corresponding to labels
+        const bgColors = [
+            'rgba(227, 193, 111, 0.8)', // Foxtail (Gold)
+            'rgba(139, 90, 43, 0.8)',   // Finger (Brown)
+            'rgba(107, 142, 35, 0.8)',  // Pearl (Green)
+            'rgba(156, 163, 175, 0.8)', // Quinoa (Gray)
+            'rgba(229, 231, 235, 0.8)'  // Rice (Light Gray)
+        ];
+        const borderColors = [
+            'rgb(227, 193, 111)',
+            'rgb(139, 90, 43)',
+            'rgb(107, 142, 35)',
+            'rgb(156, 163, 175)',
+            'rgb(209, 213, 219)'
+        ];
+
+        function initNutrientChart() {
+            const ctx = document.getElementById('nutrientChart').getContext('2d');
+            const initialData = nutrientData['protein'];
+            
+            document.getElementById('chart-title').innerText = initialData.label + ' Comparison';
+            document.getElementById('chart-insight').innerText = initialData.insight;
+
+            barChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: initialData.label,
+                        data: initialData.data,
+                        backgroundColor: bgColors,
+                        borderColor: borderColors,
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // CRITICAL for filling parent container
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(51, 51, 51, 0.9)',
+                            titleFont: { size: 14, family: 'Inter' },
+                            bodyFont: { size: 14, family: 'Inter' },
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + (document.getElementById('nutrient-select').value === 'protein' || document.getElementById('nutrient-select').value === 'fiber' ? ' g' : ' mg');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f3f4f6' },
+                            ticks: { font: { family: 'Inter' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { 
+                                font: { family: 'Inter', weight: '500' },
+                                maxRotation: 45,
+                                minRotation: 0
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 750,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+
+        function updateNutrientChart(metricKey) {
+            const dataObj = nutrientData[metricKey];
+            
+            // Update Title and Insight text
+            document.getElementById('chart-title').innerText = dataObj.label + ' Comparison';
+            document.getElementById('chart-insight').innerText = dataObj.insight;
+
+            // Update Chart Data
+            barChartInstance.data.datasets[0].label = dataObj.label;
+            barChartInstance.data.datasets[0].data = dataObj.data;
+            barChartInstance.update();
+        }
+
+        function initGIChart() {
+            const ctx = document.getElementById('giChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                indexAxis: 'y', // Horizontal bar chart
+                data: {
+                    labels: giData.map(d => d.y),
+                    datasets: [{
+                        label: 'Glycemic Index (GI)',
+                        data: giData.map(d => d.x),
+                        backgroundColor: giData.map(d => d.x > 70 ? 'rgba(239, 68, 68, 0.7)' : 'rgba(107, 142, 35, 0.7)'), // Red for high, Green for low
+                        borderColor: giData.map(d => d.x > 70 ? 'rgb(239, 68, 68)' : 'rgb(107, 142, 35)'),
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(51, 51, 51, 0.9)',
+                            callbacks: {
+                                label: function(context) {
+                                    let status = context.parsed.x > 70 ? '(High)' : '(Low/Med)';
+                                    return `GI: ${context.parsed.x} ${status}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Glycemic Index Score',
+                                font: { family: 'Inter' }
+                            },
+                            grid: { color: '#f3f4f6' }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter', weight: '500' } }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
