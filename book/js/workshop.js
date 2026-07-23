@@ -45,16 +45,30 @@ async function load() {
       '<option value=\"\">Select your name</option>' +
       people.map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
 
+    const yesLabel = document.querySelector('label[for="attend-yes"]');
+    yesLabel?.classList.remove('hidden');
+    yesRadio.disabled = false;
+
     if (!people.length) {
       form.classList.add('hidden');
       showMessage(msg, 'No eligible names left for this workshop (everyone may already be confirmed).', 'info');
       return;
     }
 
+    // Always show Yes/No. When full, disable Yes (still visible) so guests understand the limit.
     if (w.is_full) {
       yesRadio.disabled = true;
-      document.querySelector('label[for="attend-yes"]')?.classList.add('hidden');
       document.getElementById('attend-no').checked = true;
+      showMessage(
+        msg,
+        'This session is full — Yes is unavailable. Choose No, or ask the organiser for another session link.',
+        'info'
+      );
+    } else {
+      yesRadio.checked = true;
+      if (msg.dataset.type === 'info' && msg.textContent.includes('session is full')) {
+        showMessage(msg, '', 'info');
+      }
     }
 
     form.classList.remove('hidden');

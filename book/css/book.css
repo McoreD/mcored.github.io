@@ -291,6 +291,11 @@ button:disabled {
   box-shadow: 0 0 0 3px rgba(31, 111, 91, 0.12);
 }
 
+.choice label:has(input:disabled) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .hidden {
   display: none !important;
 }
