@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Book Admin</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/book/css/book.css" />
+</head>
+<body>
+  <main class="shell">
+    <h1 class="brand">Workshop admin</h1>
+    <p class="lede">Manage series, import rosters, create sessions, and copy RSVP links.</p>
+
+    <div id="unauthorized" class="panel hidden">
+      <h2>Secret link required</h2>
+      <p class="meta">Open this page with your private admin key in the URL (<code>?k=…</code>). Bookmark that full URL.</p>
+    </div>
+
+    <div id="app" class="hidden">
+      <section class="panel">
+        <h2>New series</h2>
+        <form id="create-series-form" class="row">
+          <label>Series title (e.g. One OMTID Onboarding)
+            <input type="text" id="series-title" required maxlength="200" placeholder="One OMTID Onboarding" />
+          </label>
+          <button type="submit">Create series</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Your series</h2>
+        <ul class="list" id="series-list"></ul>
+      </section>
+
+      <section id="series-detail" class="panel hidden"></section>
+    </div>
+
+    <div id="msg" class="msg" hidden></div>
+  </main>
+
+  <script src="/book/js/config.js"></script>
+  <script type="module" src="/book/js/admin.js"></script>
+</body>
+</html>

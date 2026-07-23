@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Workshop RSVP</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/book/css/book.css" />
+</head>
+<body>
+  <main class="shell">
+    <div id="workshop-meta"></div>
+
+    <form id="rsvp-form" class="panel hidden">
+      <h2>Your response</h2>
+      <div class="stack">
+        <label>Your name
+          <select id="person" required></select>
+        </label>
+        <div class="choice" role="radiogroup" aria-label="Attending">
+          <label for="attend-yes">
+            <input type="radio" name="attending" id="attend-yes" value="yes" checked />
+            Yes, attending
+          </label>
+          <label for="attend-no">
+            <input type="radio" name="attending" id="attend-no" value="no" />
+            No, not this session
+          </label>
+        </div>
+        <button type="submit" id="submit-rsvp">Submit RSVP</button>
+      </div>
+    </form>
+
+    <div id="msg" class="msg" hidden></div>
+  </main>
+
+  <script src="/book/js/config.js"></script>
+  <script type="module" src="/book/js/workshop.js"></script>
+</body>
+</html>
