@@ -27,6 +27,7 @@ Live product scope for `delpach.com/book`. IDs are stable; supersede by editing 
 | SW020 | Series complete when all roster have Yes; then new series |
 | SW021 | Email attendees via Resend (Edge Function); targets not-yet-Yes; CSV `name,email` |
 | SW022 | Admin can delete a series (roster, workshops, RSVPs cascade) |
+| SW023 | Workshops auto-titled `{Series} - Workshop N` (N = count in series + 1) |
 
 ## Defaults
 

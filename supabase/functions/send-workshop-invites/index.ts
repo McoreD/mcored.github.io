@@ -36,15 +36,17 @@ function formatWhen(iso: string) {
 function buildEmailHtml(opts: {
   name: string;
   seriesTitle: string;
+  workshopTitle: string;
   when: string;
   duration: number;
   rsvpUrl: string;
 }) {
   const safeName = opts.name.replace(/[<>&]/g, "");
+  const heading = opts.workshopTitle || opts.seriesTitle;
   return `
   <div style="font-family:Segoe UI,Arial,sans-serif;line-height:1.5;color:#14201c">
     <p>Hi ${safeName},</p>
-    <p>You are invited to RSVP for <strong>${opts.seriesTitle}</strong>.</p>
+    <p>You are invited to RSVP for <strong>${heading}</strong>.</p>
     <p><strong>Session:</strong> ${opts.when} (Australia/Perth)<br/>
        <strong>Duration:</strong> ${opts.duration} minutes</p>
     <p><a href="${opts.rsvpUrl}" style="display:inline-block;padding:12px 18px;background:#1f6f5b;color:#fff;text-decoration:none;border-radius:999px;font-weight:700">Open RSVP form</a></p>
@@ -112,6 +114,7 @@ Deno.serve(async (req) => {
   if (!workshop?.public_token) {
     return json(404, { error: "Workshop not found" });
   }
+  const workshopTitle = workshop.title || seriesTitle;
 
   if (!invitees.length) {
     return json(200, {
@@ -130,10 +133,11 @@ Deno.serve(async (req) => {
   const emails = invitees.map((person) => ({
     from,
     to: [person.email],
-    subject: `RSVP: ${seriesTitle} — ${when}`,
+    subject: `RSVP: ${workshopTitle} — ${when}`,
     html: buildEmailHtml({
       name: person.name,
       seriesTitle,
+      workshopTitle,
       when,
       duration: workshop.duration_minutes,
       rsvpUrl: rsvpBase,

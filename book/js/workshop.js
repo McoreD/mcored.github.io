@@ -34,9 +34,10 @@ async function load() {
     const s = state.series;
     const people = state.eligible_people || [];
 
+    const workshopTitle = w.title || s.title || 'Workshop RSVP';
     meta.innerHTML = `
       <p class="badge">${escapeHtml(s.title)}</p>
-      <h1 class="brand" style="font-size:clamp(1.6rem,3.5vw,2.2rem);margin-top:0.6rem">Workshop RSVP</h1>
+      <h1 class="brand" style="font-size:clamp(1.6rem,3.5vw,2.2rem);margin-top:0.6rem">${escapeHtml(workshopTitle)}</h1>
       <p class="lede">${formatWorkshopWhen(w.starts_at)} · ${w.duration_minutes} minutes</p>
       <p class="meta" style="margin-top:0.5rem">
         ${

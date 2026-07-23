@@ -120,6 +120,7 @@ function renderDetail(data) {
     <section style="margin-top:1.5rem">
       <h3>Create workshop session</h3>
       <p class="meta">Date &amp; time are Australia/Perth. Then use Email attendees to invite everyone who has not yet said Yes.</p>
+      <p class="meta" id="workshop-title-preview">Will be named: ${escapeHtml(s.title)} - Workshop ${workshops.length + 1}</p>
       <div class="row">
         <label>Date<input type="date" id="w-date" required /></label>
         <label>Time<input type="time" id="w-time" required /></label>
@@ -140,9 +141,10 @@ function renderDetail(data) {
             ? workshops
                 .map((w) => {
                   const url = workshopGuestUrl(w.public_token);
+                  const title = w.title || `${s.title} - Workshop`;
                   return `<li>
-                    <strong>${formatWorkshopWhen(w.starts_at)}</strong>
-                    <div class="meta">${w.duration_minutes} min · ${w.yes_count}/${w.capacity} Yes · ${w.no_count} No</div>
+                    <strong>${escapeHtml(title)}</strong>
+                    <div class="meta">${formatWorkshopWhen(w.starts_at)} · ${w.duration_minutes} min · ${w.yes_count}/${w.capacity} Yes · ${w.no_count} No</div>
                     <div class="link-box">
                       <code>${escapeHtml(url)}</code>
                       <button type="button" class="secondary copy-link" data-url="${escapeHtml(url)}">Copy link</button>
@@ -248,9 +250,11 @@ async function createWorkshop() {
       p_capacity: capacity,
     });
     const url = workshopGuestUrl(row.public_token);
+    const createdTitle = row.title || 'Workshop';
     const box = detail.querySelector('#new-link');
     box.classList.remove('hidden');
     box.innerHTML = `
+      <p><strong>${escapeHtml(createdTitle)}</strong></p>
       <div class="link-box">
         <code>${escapeHtml(url)}</code>
         <button type="button" class="secondary" id="copy-new">Copy link</button>
@@ -265,7 +269,7 @@ async function createWorkshop() {
     box.querySelector('#email-new').addEventListener('click', (e) => {
       emailAttendees(row.id, e.currentTarget);
     });
-    showMessage(msg, 'Workshop created.', 'ok');
+    showMessage(msg, `Created “${createdTitle}”.`, 'ok');
     await openSeries(activeSeriesId);
     await loadSeries();
   } catch (e) {
