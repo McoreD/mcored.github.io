@@ -296,6 +296,47 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.choice-actions {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 520px) {
+  .choice-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.btn-attend {
+  width: 100%;
+  min-height: 3.25rem;
+  border-radius: 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.btn-attend.yes {
+  background: var(--teal);
+  color: #fff;
+}
+
+.btn-attend.yes:hover:not(:disabled) {
+  background: #185a4a;
+}
+
+.btn-attend.no {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+
+.btn-attend.no:hover:not(:disabled) {
+  background: #f3f6f2;
+  border-color: #b9c8bf;
+}
+
 .hidden {
   display: none !important;
 }

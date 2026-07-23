@@ -20,17 +20,10 @@
         <label>Your name
           <select id="person" required></select>
         </label>
-        <div class="choice" role="radiogroup" aria-label="Attending">
-          <label for="attend-yes">
-            <input type="radio" name="attending" id="attend-yes" value="yes" checked />
-            Yes, attending
-          </label>
-          <label for="attend-no">
-            <input type="radio" name="attending" id="attend-no" value="no" />
-            No, not this session
-          </label>
+        <div class="choice-actions" role="group" aria-label="Attendance">
+          <button type="button" id="btn-yes" class="btn-attend yes">Yes, I will attend</button>
+          <button type="button" id="btn-no" class="btn-attend no">No, I cannot attend</button>
         </div>
-        <button type="submit" id="submit-rsvp">Submit RSVP</button>
       </div>
     </form>
 

@@ -6,13 +6,20 @@ const msg = document.getElementById('msg');
 const form = document.getElementById('rsvp-form');
 const meta = document.getElementById('workshop-meta');
 const nameSelect = document.getElementById('person');
-const yesRadio = document.getElementById('attend-yes');
-const submitBtn = document.getElementById('submit-rsvp');
+const btnYes = document.getElementById('btn-yes');
+const btnNo = document.getElementById('btn-no');
 
 let state = null;
+let submitting = false;
 
 function errText(e) {
   return e?.message || String(e);
+}
+
+function setBusy(busy) {
+  submitting = busy;
+  btnYes.disabled = busy || (state?.workshop?.is_full ?? false);
+  btnNo.disabled = busy;
 }
 
 async function load() {
@@ -42,12 +49,8 @@ async function load() {
     `;
 
     nameSelect.innerHTML =
-      '<option value=\"\">Select your name</option>' +
+      '<option value="">Select your name</option>' +
       people.map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
-
-    const yesLabel = document.querySelector('label[for="attend-yes"]');
-    yesLabel?.classList.remove('hidden');
-    yesRadio.disabled = false;
 
     if (!people.length) {
       form.classList.add('hidden');
@@ -55,20 +58,17 @@ async function load() {
       return;
     }
 
-    // Always show Yes/No. When full, disable Yes (still visible) so guests understand the limit.
+    btnYes.disabled = !!w.is_full;
+    btnNo.disabled = false;
+
     if (w.is_full) {
-      yesRadio.disabled = true;
-      document.getElementById('attend-no').checked = true;
       showMessage(
         msg,
-        'This session is full — Yes is unavailable. Choose No, or ask the organiser for another session link.',
+        'This session is full — you can’t mark Yes. Choose No, or ask the organiser for another session link.',
         'info'
       );
-    } else {
-      yesRadio.checked = true;
-      if (msg.dataset.type === 'info' && msg.textContent.includes('session is full')) {
-        showMessage(msg, '', 'info');
-      }
+    } else if (msg.dataset.type === 'info' && msg.textContent.includes('session is full')) {
+      showMessage(msg, '', 'info');
     }
 
     form.classList.remove('hidden');
@@ -79,15 +79,20 @@ async function load() {
   }
 }
 
-form?.addEventListener('submit', async (e) => {
-  e.preventDefault();
+async function submitRsvp(attending) {
+  if (submitting) return;
   const personId = nameSelect.value;
-  const attending = document.querySelector('input[name="attending"]:checked')?.value === 'yes';
   if (!personId) {
-    showMessage(msg, 'Please choose your name.', 'error');
+    showMessage(msg, 'Please choose your name first.', 'error');
+    nameSelect.focus();
     return;
   }
-  submitBtn.disabled = true;
+  if (attending && state?.workshop?.is_full) {
+    showMessage(msg, 'This session is full — Yes is unavailable.', 'error');
+    return;
+  }
+
+  setBusy(true);
   try {
     const result = await rpc('guest_submit_rsvp', {
       p_public_token: token,
@@ -105,9 +110,14 @@ form?.addEventListener('submit', async (e) => {
   } catch (err) {
     showMessage(msg, errText(err), 'error');
   } finally {
-    submitBtn.disabled = false;
+    setBusy(false);
   }
-});
+}
+
+btnYes?.addEventListener('click', () => submitRsvp(true));
+btnNo?.addEventListener('click', () => submitRsvp(false));
+
+form?.addEventListener('submit', (e) => e.preventDefault());
 
 function escapeHtml(str) {
   return String(str)
