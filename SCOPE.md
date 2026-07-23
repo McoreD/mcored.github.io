@@ -26,6 +26,7 @@ Live product scope for `delpach.com/book`. IDs are stable; supersede by editing 
 | SW019 | Eventbrite-inspired UX (no payments/tickets/email) |
 | SW020 | Series complete when all roster have Yes; then new series |
 | SW021 | Email attendees via Resend (Edge Function); targets not-yet-Yes; CSV `name,email` |
+| SW022 | Admin can delete a series (roster, workshops, RSVPs cascade) |
 
 ## Defaults
 

@@ -155,6 +155,17 @@ button.ghost,
   border: 1px solid var(--line);
 }
 
+button.danger,
+.btn.danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+button.danger:hover,
+.btn.danger:hover {
+  background: #7f1515;
+}
+
 button:disabled {
   opacity: 0.55;
   cursor: not-allowed;

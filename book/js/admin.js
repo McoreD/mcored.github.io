@@ -77,7 +77,10 @@ function renderDetail(data) {
 
   detail.classList.remove('hidden');
   detail.innerHTML = `
-    <h2>${escapeHtml(s.title)}</h2>
+    <div style="display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;align-items:flex-start">
+      <h2 style="margin:0">${escapeHtml(s.title)}</h2>
+      <button type="button" class="danger" id="btn-delete-series">Delete series</button>
+    </div>
     <p class="meta">Progress: <strong>${yes}/${roster}</strong> have said Yes across this series.</p>
     <div class="progress" aria-hidden="true"><span style="width:${pct}%"></span></div>
     ${complete ? '<p class="badge ok" style="margin-top:0.75rem">Series complete — everyone has participated. You can start a new series anytime.</p>' : ''}
@@ -154,6 +157,7 @@ function renderDetail(data) {
     </section>
   `;
 
+  detail.querySelector('#btn-delete-series')?.addEventListener('click', deleteSeries);
   detail.querySelector('#btn-import')?.addEventListener('click', importRoster);
   detail.querySelector('#csv-file')?.addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
@@ -176,6 +180,28 @@ function renderDetail(data) {
   detail.querySelectorAll('.email-attendees').forEach((btn) => {
     btn.addEventListener('click', () => emailAttendees(btn.dataset.id, btn));
   });
+}
+
+async function deleteSeries() {
+  if (!activeSeriesId) return;
+  const ok = window.confirm(
+    'Delete this series permanently?\n\nIts roster, workshops, and RSVPs will all be removed. This cannot be undone.'
+  );
+  if (!ok) return;
+
+  try {
+    await rpc('admin_delete_series', {
+      p_admin_token: adminToken,
+      p_series_id: activeSeriesId,
+    });
+    activeSeriesId = null;
+    detail.classList.add('hidden');
+    detail.innerHTML = '';
+    showMessage(msg, 'Series deleted.', 'ok');
+    await loadSeries();
+  } catch (e) {
+    showMessage(msg, errText(e), 'error');
+  }
 }
 
 async function importRoster() {
