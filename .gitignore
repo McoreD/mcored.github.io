@@ -2,3 +2,4 @@
 *.suo
 book/.admin-secret
 **/.DS_Store
+private/

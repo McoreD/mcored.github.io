@@ -29,18 +29,25 @@ export function workshopGuestUrl(publicToken) {
   return `${base}?t=${encodeURIComponent(publicToken)}`;
 }
 
-export function parseCsvNames(text) {
-  const names = [];
+export function parseCsvRoster(text) {
+  const rows = [];
   const lines = text.split(/\r?\n/);
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
-    const first = trimmed.split(/,|\t/)[0].replace(/^"|"$/g, '').trim();
-    if (!first) continue;
-    if (names.length === 0 && /^name$/i.test(first)) continue;
-    names.push(first);
+    const parts = trimmed.split(/,|\t/).map((p) => p.replace(/^"|"$/g, '').trim());
+    const name = parts[0] || '';
+    const email = (parts[1] || '').toLowerCase();
+    if (!name) continue;
+    if (rows.length === 0 && /^name$/i.test(name)) continue;
+    rows.push({ name, email: email && email !== 'email' ? email : '' });
   }
-  return names;
+  return rows;
+}
+
+/** @deprecated use parseCsvRoster */
+export function parseCsvNames(text) {
+  return parseCsvRoster(text).map((r) => r.name);
 }
 
 export function showMessage(el, text, type = 'info') {

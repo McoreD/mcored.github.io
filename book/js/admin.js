@@ -4,7 +4,7 @@ import {
   formatWorkshopWhen,
   perthLocalToIso,
   workshopGuestUrl,
-  parseCsvNames,
+  parseCsvRoster,
   showMessage,
   copyText,
 } from './utils.js';
@@ -20,7 +20,6 @@ let activeSeriesId = null;
 
 if (adminToken) {
   sessionStorage.setItem('book_admin_token', adminToken);
-  // Clean key from URL after capture (keeps secret out of shareable history a bit)
   if (qs('k')) {
     const url = new URL(window.location.href);
     url.searchParams.delete('k');
@@ -86,20 +85,26 @@ function renderDetail(data) {
     <div class="split" style="margin-top:1.25rem">
       <section>
         <h3>Import roster (CSV)</h3>
-        <p class="meta">One name per line, or a single name column. Upserts by exact name.</p>
+        <p class="meta">Columns: <code>name,email</code>. Upserts by exact name; fills email when provided.</p>
         <div class="stack">
           <label>CSV file<input type="file" id="csv-file" accept=".csv,text/csv,text/plain" /></label>
-          <label>Or paste names<textarea id="csv-text" placeholder="Alex Chen&#10;Sam Rivera&#10;..."></textarea></label>
-          <button type="button" id="btn-import">Import names</button>
+          <label>Or paste CSV<textarea id="csv-text" placeholder="name,email&#10;Alex Chen,alex.chen@example.com"></textarea></label>
+          <button type="button" id="btn-import">Import roster</button>
         </div>
       </section>
 
       <section>
         <h3>Still need Yes (${remaining.length})</h3>
+        <p class="meta">These people get “Email attendees” for the workshop you choose below.</p>
         <ul class="list" id="remaining-list">
           ${
             remaining.length
-              ? remaining.map((p) => `<li>${escapeHtml(p.name)}</li>`).join('')
+              ? remaining
+                  .map(
+                    (p) =>
+                      `<li>${escapeHtml(p.name)}${p.email ? ` <span class="meta">&lt;${escapeHtml(p.email)}&gt;</span>` : ' <span class="badge warn">no email</span>'}</li>`
+                  )
+                  .join('')
               : '<li class="meta">Nobody left — series is complete.</li>'
           }
         </ul>
@@ -111,7 +116,7 @@ function renderDetail(data) {
 
     <section style="margin-top:1.5rem">
       <h3>Create workshop session</h3>
-      <p class="meta">Date &amp; time are Australia/Perth. Guests who have not yet said Yes can RSVP.</p>
+      <p class="meta">Date &amp; time are Australia/Perth. Then use Email attendees to invite everyone who has not yet said Yes.</p>
       <div class="row">
         <label>Date<input type="date" id="w-date" required /></label>
         <label>Time<input type="time" id="w-time" required /></label>
@@ -138,6 +143,7 @@ function renderDetail(data) {
                     <div class="link-box">
                       <code>${escapeHtml(url)}</code>
                       <button type="button" class="secondary copy-link" data-url="${escapeHtml(url)}">Copy link</button>
+                      <button type="button" class="email-attendees" data-id="${w.id}">Email attendees</button>
                     </div>
                   </li>`;
                 })
@@ -167,24 +173,27 @@ function renderDetail(data) {
       showMessage(msg, 'Workshop link copied.', 'ok');
     });
   });
+  detail.querySelectorAll('.email-attendees').forEach((btn) => {
+    btn.addEventListener('click', () => emailAttendees(btn.dataset.id, btn));
+  });
 }
 
 async function importRoster() {
   try {
     const text = detail.querySelector('#csv-text')?.value || '';
-    const names = parseCsvNames(text);
-    if (!names.length) {
-      showMessage(msg, 'No names found to import.', 'error');
+    const rows = parseCsvRoster(text);
+    if (!rows.length) {
+      showMessage(msg, 'No rows found to import.', 'error');
       return;
     }
     const result = await rpc('admin_import_roster', {
       p_admin_token: adminToken,
       p_series_id: activeSeriesId,
-      p_names: names,
+      p_rows: rows,
     });
     showMessage(
       msg,
-      `Imported ${result.inserted} name(s); ${result.skipped} skipped (blank/duplicate/header).`,
+      `Imported ${result.inserted} new; updated ${result.updated}; skipped ${result.skipped}.`,
       'ok'
     );
     await openSeries(activeSeriesId);
@@ -219,18 +228,70 @@ async function createWorkshop() {
       <div class="link-box">
         <code>${escapeHtml(url)}</code>
         <button type="button" class="secondary" id="copy-new">Copy link</button>
+        <button type="button" id="email-new" data-id="${row.id}">Email attendees</button>
       </div>
-      <p class="meta">Send this link manually (Outlook). Only people who have not yet said Yes will appear in the name list.</p>
+      <p class="meta">Email attendees sends this link to everyone who has not yet said Yes (everyone, on the first workshop).</p>
     `;
     box.querySelector('#copy-new').addEventListener('click', async () => {
       await copyText(url);
       showMessage(msg, 'Workshop link copied.', 'ok');
+    });
+    box.querySelector('#email-new').addEventListener('click', (e) => {
+      emailAttendees(row.id, e.currentTarget);
     });
     showMessage(msg, 'Workshop created.', 'ok');
     await openSeries(activeSeriesId);
     await loadSeries();
   } catch (e) {
     showMessage(msg, errText(e), 'error');
+  }
+}
+
+async function emailAttendees(workshopId, buttonEl) {
+  if (!workshopId) return;
+  const ok = window.confirm(
+    'Send RSVP emails to everyone who has not yet said Yes for this series?\n\nThey will receive this workshop’s link.'
+  );
+  if (!ok) return;
+
+  const original = buttonEl?.textContent;
+  if (buttonEl) {
+    buttonEl.disabled = true;
+    buttonEl.textContent = 'Sending…';
+  }
+  try {
+    const res = await fetch(`${window.BOOK_CONFIG.functionsUrl}/send-workshop-invites`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${window.BOOK_CONFIG.supabaseAnonKey}`,
+        apikey: window.BOOK_CONFIG.supabaseAnonKey,
+      },
+      body: JSON.stringify({
+        admin_token: adminToken,
+        workshop_id: workshopId,
+        site_origin: window.location.origin,
+      }),
+    });
+    const payload = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(payload.error || payload.message || `Send failed (${res.status})`);
+    }
+    showMessage(
+      msg,
+      `Emailed ${payload.sent} attendee(s)` +
+        (payload.skipped_no_email ? `; ${payload.skipped_no_email} skipped (no email)` : '') +
+        (payload.failed ? `; ${payload.failed} failed` : '') +
+        '.',
+      payload.failed ? 'error' : 'ok'
+    );
+  } catch (e) {
+    showMessage(msg, errText(e), 'error');
+  } finally {
+    if (buttonEl) {
+      buttonEl.disabled = false;
+      buttonEl.textContent = original || 'Email attendees';
+    }
   }
 }
 
